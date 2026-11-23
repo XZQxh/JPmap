@@ -10,6 +10,8 @@ const server = http.createServer((req, res) => {
     '/assets/airbnb.ico': ['assets/airbnb.ico', 'image/x-icon'],
     '/assets/ctrip.ico': ['assets/ctrip.ico', 'image/x-icon'] };
   publicFiles['/nearby.js'] = ['nearby.js', 'text/javascript; charset=utf-8'];
+  for (const file of ['cloudbase-config.js', 'cloud-sync.js']) publicFiles['/' + file] = [file, 'text/javascript; charset=utf-8'];
+  publicFiles['/cloud-sync.css'] = ['cloud-sync.css', 'text/css; charset=utf-8'];
   publicFiles['/pilgrimage.js'] = ['pilgrimage.js', 'text/javascript; charset=utf-8'];
   publicFiles['/weather.js'] = ['weather.js', 'text/javascript; charset=utf-8'];
   publicFiles['/weather-ui.js'] = ['weather-ui.js', 'text/javascript; charset=utf-8'];

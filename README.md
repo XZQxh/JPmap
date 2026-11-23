@@ -1,5 +1,11 @@
 # 日本旅行地图
 
+## CloudBase 账号同步（配置中）
+
+新增登录入口、云端行程同步及备份导出/导入。上线使用前需完成 [CloudBase 设置步骤](docs/cloudbase-setup.md)：执行 SQL、创建应用个人账号、配置安全来源。完成前仍可使用本地行程；尚未验证真实账号的跨设备同步。
+
+开发验证需先 `npm ci`，再执行 `npm test`；浏览器检查为 `npm run check:browser`（需要本机 Edge）。本地服务无需安装依赖。
+
 ## 在线访问与 GitHub Pages
 
 在线地址：https://xzqxh.github.io/JPmap/

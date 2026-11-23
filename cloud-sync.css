@@ -1,0 +1,14 @@
+.cloud-button { margin-left: auto; white-space: nowrap; }
+.cloud-dialog { width: min(480px, calc(100% - 24px)); max-height: calc(100dvh - 32px); padding: 22px; overflow-y: auto; }
+.cloud-dialog h2 { margin: 0; font-size: 20px; }
+.cloud-dialog p { font-size: 14px; line-height: 1.65; }
+.cloud-dialog .cloud-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.cloud-dialog .cloud-status { overflow-wrap: anywhere; }
+.cloud-dialog label { display: grid; gap: 6px; margin-top: 14px; font-size: 14px; }
+.cloud-dialog input { min-width: 0; width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+.cloud-dialog .cloud-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.cloud-dialog button { min-height: 40px; }
+@media (max-width: 850px) {
+  .cloud-button { position: absolute; right: 0; bottom: 0; min-height: 28px; padding: 3px 8px; font-size: 12px; }
+  .position-status { min-height: 28px; padding-right: 100px; display: flex; align-items: center; }
+}
