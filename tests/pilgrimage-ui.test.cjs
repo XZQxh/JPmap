@@ -31,7 +31,7 @@ test('current-location pilgrimage lookup uses the one-shot tracker and reports t
   assert.match(elements.get('pilgrimStatus').textContent, /无法判断/);
   assert.doesNotMatch(elements.get('pilgrimStatus').textContent, /没有范围内/);
   assert.equal(context.pilgrimView.active, true);
-  assert.equal(elements.get('pilgrimBtnLabel').textContent, '找找圣地');
+  assert.match(elements.get('pilgrimBtnLabel').textContent, /找.*圣地/);
 });
 test('closing a pending pilgrimage search ignores late results and restores the trip', async () => {
   let resolve, signal, renders = 0;

@@ -56,7 +56,7 @@ test('stop clears watch ID zero and ignores late location callbacks', () => {
 test('permission denial disables live tracking with a useful fallback message', () => {
   const f = fixture(); f.tracker.start(); f.fail({ code: 1 });
   assert.equal(f.tracker.isActive(), false);
-  assert.match(f.states.at(-1)[1], /找机厅 · 按地图中心/);
+  assert.match(f.states.at(-1)[1], /“mai一下”中选择“地图中心”/);
 });
 test('a one-time lookup does not enable continuous tracking', async () => {
   const f = fixture(); const value = await f.tracker.locate();

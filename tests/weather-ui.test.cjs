@@ -18,7 +18,7 @@ function setup({ date = '2027-02-18', now = Date.parse('2026-11-22T12:00:00Z'), 
 test('future trip shows opening dates and no fabricated weather or network requests', () => {
   const f = setup(); f.panel.render();
   assert.match(f.host.innerHTML, /2027-02-03 起可查询/);
-  assert.match(f.host.innerHTML, /富士見予報/); assert.match(f.host.innerHTML, /等天气近一点/);
+  assert.match(f.host.innerHTML, /富士見予報/); assert.match(f.host.innerHTML, /尚未进入预报范围/);
   assert.doesNotMatch(f.host.innerHTML, /参考分<|较佳候选/);
   assert.equal(f.loads.length, 0);
 });

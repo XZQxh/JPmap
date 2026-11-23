@@ -36,7 +36,7 @@
         .filter(Boolean).join(' · ')).join('；') || 'maimai DX · 机台信息见 nearcade';
   }
   function locationError(error) {
-    if (error.code === 1) return '未获得定位权限。请在浏览器中允许位置访问，或选择“找机厅 · 按地图中心”。';
+    if (error.code === 1) return '未获得定位权限。请在浏览器中允许位置访问，或在“mai一下”中选择“地图中心”。';
     if (error.code === 3) return '定位超时，请移至信号较好的位置后重试，或按地图中心查找。';
     return '暂时无法获取位置，请检查手机定位服务，或按地图中心查找。';
   }

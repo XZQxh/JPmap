@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f5f4ef">
+  <meta name="theme-color" content="#f7f8f7">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>日本旅行地图 · 2027</title>
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.css" crossorigin="">
@@ -11,99 +11,100 @@
     :root {
       color-scheme: light;
       --ink: #202925;
-      --muted: #7a837e;
-      --paper: #f5f4ef;
-      --surface: #fffefa;
-      --line: #e7e7df;
+      --muted: #65706a;
+      --paper: #f7f8f7;
+      --surface: #ffffff;
+      --line: #e2e6e3;
       --green: #245a49;
       --green-soft: #e7f0eb;
       --coral: #d77a62;
-      --shadow: 0 14px 40px rgba(28, 48, 39, .12);
+      --shadow: 0 8px 28px rgba(28, 48, 39, .10);
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     html, body { margin: 0; min-height: 100%; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
+    body { position: relative; isolation: isolate; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: url('assets/japan-atmosphere.webp') center -28px / max(1280px, 100vw) auto no-repeat; opacity: .48; }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
-    .app { max-width: 1440px; margin: 0 auto; min-height: 100dvh; padding: 22px 28px 30px; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 18px; }
-    .brand { display: flex; gap: 12px; align-items: center; }
-    .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 15px; background: var(--green); color: white; font-size: 21px; box-shadow: 0 7px 16px #245a4933; }
-    .brand h1 { margin: 0; font-size: 19px; letter-spacing: -.03em; }
-    .brand p { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
-    .trip-meta { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+    .app { max-width: 1440px; margin: 0 auto; height: 100dvh; min-height: 860px; display: flex; flex-direction: column; padding: 24px 28px; }
+    .topbar { display: flex; flex-shrink: 0; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 22px; }
+    .brand { display: flex; align-items: center; }
+
+    .brand h1 { margin: 0; font-size: 22px; letter-spacing: -.03em; font-weight: 650; }
+    .brand p { margin: 5px 0 0; font-size: 14px; color: var(--muted); }
+    .trip-meta { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
     .trip-meta strong { color: var(--ink); font-weight: 650; }
-    .trip-badge { padding: 7px 11px; background: #fffefa; border: 1px solid var(--line); border-radius: 999px; }
-    .datebar { display: flex; gap: 7px; overflow-x: auto; padding: 2px 1px 13px; scrollbar-width: none; }
+    .trip-badge { padding: 0; background: transparent; border: 0; }
+    .datebar { display: flex; flex-shrink: 0; gap: 7px; overflow-x: auto; padding: 0 0 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
     .datebar::-webkit-scrollbar { display: none; }
-    .date-chip { border: 1px solid transparent; background: transparent; color: var(--muted); min-width: 57px; padding: 8px 8px 7px; border-radius: 15px; text-align: center; flex: 0 0 auto; }
-    .date-chip span { display: block; font-size: 10px; margin-bottom: 4px; }
-    .date-chip strong { font-size: 15px; }
-    .date-chip.active { background: var(--green); color: white; box-shadow: 0 5px 12px #245a4930; }
-    .date-chip.flight-day:not(.active) { border-color: #eadbd3; color: #a85d47; background: #fffaf7; }
-    .date-chip.unscheduled { min-width: 90px; background: #eeeae0; color: #665f4e; }
-    .date-chip.unscheduled.active { background: #766d58; color: white; }
-    .layout { display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(360px, .82fr); grid-template-rows: minmax(0, 1fr); gap: 18px; height: clamp(580px, calc(100dvh - 230px), 800px); }
-    .map-card, .side-card { background: var(--surface); border: 1px solid #ebeae4; border-radius: 24px; box-shadow: 0 3px 15px rgba(36, 47, 39, .035); overflow: hidden; }
+    .date-chip { border: 1px solid transparent; background: transparent; color: var(--muted); min-width: 57px; padding: 8px 8px 7px; border-radius: 8px; text-align: center; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+    .date-chip span { display: block; font-size: 12px; margin-bottom: 4px; }
+    .date-chip strong { font-size: 14px; }
+    .date-chip.active { background: var(--green); color: white; box-shadow: none; }
+    .date-chip.flight-day:not(.active) { border-color: var(--line); color: var(--ink); background: white; }
+    .date-chip.unscheduled { min-width: 90px; background: transparent; color: var(--muted); margin-left: 6px; }
+    .date-chip.unscheduled.active { background: var(--green); color: white; }
+    .layout { display: grid; flex: 1; min-height: 580px; grid-template-columns: minmax(0, 1.55fr) minmax(390px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; }
+    .map-card, .side-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: none; overflow: hidden; }
     .map-card { position: relative; min-height: 580px; }
     #map { position: absolute; inset: 0; background: #e6ece7; }
     .map-top { position: absolute; z-index: 500; left: 18px; right: 18px; top: 16px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; }
-    .map-label, .map-action { pointer-events: auto; border: 1px solid #ffffffc9; background: #fffef4ed; backdrop-filter: blur(12px); box-shadow: 0 4px 16px #18251d20; }
-    .map-label { border-radius: 15px; padding: 10px 13px; }
-    .map-label small { display: block; color: var(--muted); font-size: 10px; margin-bottom: 3px; }
+    .map-label, .map-action { pointer-events: auto; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 2px 6px #18251d0d; }
+    .map-label { border-radius: 8px; padding: 10px 13px; }
+    .map-label small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
     .map-label strong { font-size: 14px; }
-    .map-action { border-radius: 14px; padding: 0 14px; color: var(--green); font-weight: 650; }
+    .map-action { border-radius: 8px; padding: 0 14px; color: var(--green); font-weight: 650; }
     .map-legend { position: absolute; z-index: 500; left: 16px; bottom: 36px; display: flex; gap: 6px; flex-wrap: wrap; max-width: calc(100% - 85px); }
-    .legend-item { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #ffffffc9; border-radius: 999px; padding: 6px 9px; background: #fffef2e8; backdrop-filter: blur(10px); box-shadow: 0 3px 12px #18251d14; font-size: 10px; color: #3a4640; }
+    .legend-item { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; background: white; font-size: 12px; color: #3a4640; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot); }
-    .map-hint { position: absolute; z-index: 500; right: 64px; bottom: 83px; font-size: 10px; color: #68736c; background: #fffef0d9; border-radius: 10px; padding: 7px 9px; pointer-events: none; }
-    .map-notice { position: absolute; z-index: 600; top: 126px; left: 14px; right: 14px; padding: 10px 12px; border-radius: 12px; background: #fff3e7f5; color: #854c30; font-size: 12px; line-height: 1.6; box-shadow: 0 3px 14px #18251d20; }
+    .map-notice { position: absolute; z-index: 600; top: 126px; left: 14px; right: 14px; padding: 10px 12px; border: 1px solid #e4c9af; border-radius: 8px; background: #fff8ef; color: #854c30; font-size: 14px; line-height: 1.6; }
     .map-notice[hidden] { display: none; }
     .map-notice button { border: 0; padding: 4px 8px; border-radius: 6px; color: var(--green); background: white; margin-left: 8px; }
-    .map-options { position: absolute; z-index: 500; top: 81px; left: 16px; display: flex; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: #fffffff0; box-shadow: 0 3px 12px #18251d15; font-size: 13px; }
+    .map-options { position: absolute; z-index: 500; top: 81px; left: 16px; display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; font-size: 14px; }
     .map-options select { border: 0; background: transparent; color: var(--green); max-width: 130px; }
     .map-options label { display: flex; align-items: center; gap: 4px; }
     .map-options input { accent-color: var(--green); }
     .nav-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
-    .nav-link { display: inline-block; text-decoration: none; color: var(--green); background: var(--green-soft); padding: 9px 11px; border-radius: 9px; font-size: 13px; line-height: 1.4; }
+    .nav-link { display: inline-block; text-decoration: none; color: var(--green); background: var(--green-soft); padding: 9px 11px; border-radius: 6px; font-size: 14px; line-height: 1.4; }
     .nav-note { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .place-nav { display: block; margin-top: 5px; width: fit-content; font-size: 12px; color: var(--green); text-decoration: none; padding: 3px 0; }
     .app-link { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; }
     .app-icon { width: 19px; height: 19px; flex: 0 0 19px; object-fit: contain; }
     .maimai-icon { width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; vertical-align: middle; }
-    .arcade-search-group { display: flex; flex-wrap: wrap; gap: 6px; padding: 5px; border: 1px solid #cee4e8; border-radius: 16px; background: #edf6f7; }
-    .arcade-search-group .tool-button { display: inline-flex; align-items: center; gap: 9px; text-align: left; }
-    .arcade-search-group .maimai-icon { width: 27px; height: 27px; flex-basis: 27px; }
-    .search-copy { display: flex; flex-direction: column; gap: 3px; }
-    .search-copy strong { font-size: 14px; }
-    .search-copy small { font-size: 12px; font-weight: 400; opacity: .85; }
-    .mai-heading h3 { display: flex; align-items: center; gap: 7px; }
-    .filter-chip { display: inline-flex; align-items: center; gap: 5px; }
+    .search-groups { display: flex; gap: 10px; }
+    .search-menu { position: relative; }
+    .search-menu summary { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; list-style: none; cursor: pointer; }
+    .search-menu summary::-webkit-details-marker { display: none; }
+    .search-menu[open] > summary { background: var(--green-soft); color: var(--green); }
+    .search-origins { position: absolute; z-index: 1100; top: calc(100% + 6px); left: 0; display: grid; gap: 4px; width: 160px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+    .search-origins .tool-button { width: 100%; text-align: left; border: 0; border-radius: 6px; background: transparent; font-weight: 450; }
+    .mai-heading h3 { display: flex; align-items: center; gap: 7px; font-size: 16px; margin: 0; color: var(--ink); }
+    .filter-chip { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 6px; padding: 7px 9px; font-size: 14px; }
     .app-link:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-    .explore-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 13px; }
-    .tool-button { border: 1px solid #dce4dc; border-radius: 12px; padding: 9px 12px; background: var(--surface); color: var(--green); font-size: 13px; font-weight: 650; }
+    .explore-tools { display: flex; flex-shrink: 0; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; }
+    .tool-button { border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; background: var(--surface); color: var(--ink); font-size: 14px; font-weight: 550; }
     .tool-button[aria-pressed="true"] { background: #e5effa; color: #246bb5; border-color: #bcd5ee; }
-    .tool-button.mai { background: #3e8ea0; border-color: #3e8ea0; color: white; }
+    .tool-button.mai { background: var(--surface); border-color: var(--line); color: var(--ink); }
     .tool-button:disabled { opacity: .6; cursor: wait; }
     .position-status { font-size: 12px; color: var(--muted); flex: 1 1 210px; }
-    .mai-panel { background: #f0f8f9; border: 1px solid #cee4e8; border-radius: 16px; padding: 12px; margin-bottom: 15px; }
-    .pilgrim-search-group { background: #f3eff9; border-color: #ded3ec; }
-    .tool-button.pilgrim { background: #796195; border-color: #796195; color: white; }
-    .pilgrim-symbol { display: grid; place-items: center; width: 27px; height: 27px; font-size: 24px; flex: 0 0 27px; }
-    .pilgrim-panel { background: #f6f2fa; border-color: #ded3ec; }
-    .pilgrim-panel .mai-heading h3 { color: #6a5085; }
+    .mai-panel { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 16px; margin-bottom: 18px; }
+    .tool-button.pilgrim { background: var(--surface); border-color: var(--line); color: var(--ink); }
+
+    .pilgrim-panel { background: transparent; border-color: var(--line); }
+    .pilgrim-panel .mai-heading h3 { color: var(--ink); }
     .work-settings { margin: 12px 0; font-size: 14px; }
-    .work-settings summary { cursor: pointer; color: #6a5085; }
+    .work-settings summary { cursor: pointer; color: var(--green); }
     .work-item { display: flex; align-items: center; gap: 7px; margin: 9px 0; }
     .work-item label { flex: 1; display: flex; align-items: center; gap: 7px; overflow-wrap: anywhere; }
     .work-item input { accent-color: #796195; }
     .work-item button { border: 0; background: transparent; color: #85768f; padding: 7px; }
     .work-add { display: flex; gap: 7px; margin: 10px 0; }
-    .work-add input { width: 0; flex: 1; min-width: 0; border: 1px solid #ded3ec; border-radius: 9px; padding: 9px; font-size: 14px; }
+    .work-add input { width: 0; flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 6px; padding: 9px; font-size: 16px; }
     .work-add button { padding: 9px; }
-    .work-filter { display: block; width: 100%; border: 1px solid #ded3ec; background: white; padding: 9px; border-radius: 9px; margin-top: 10px; font-size: 14px; }
-    .pilgrim-card { border-left: 4px solid var(--work-color); }
-    .work-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; margin-bottom: 7px; color: #5d5266; }
+    .work-filter { display: block; width: 100%; border: 1px solid var(--line); background: white; padding: 9px; border-radius: 6px; margin-top: 10px; font-size: 14px; }
+    .pilgrim-card { border-left: 0; }
+    .work-badge { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; margin-bottom: 7px; color: #5d5266; }
     .work-badge i { width: 10px; height: 10px; border-radius: 50%; background: var(--work-color); flex: 0 0 10px; box-shadow: 0 0 0 1px #0002; }
     .pilgrim-image { width: 100%; max-height: 160px; object-fit: contain; background: #f1edf4; border-radius: 8px; margin-top: 8px; }
     .pilgrim-credit { display: block; font-size: 12px; line-height: 1.6; color: #79668d; overflow-wrap: anywhere; }
@@ -113,56 +114,56 @@
     .map-legend .legend-item { max-width: 100%; overflow-wrap: anywhere; }
     .marker span { text-shadow: 0 1px 3px #0009; }
     .mai-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .mai-heading h3 { font-size: 16px; margin: 0; color: #286778; }
-    .mai-status { font-size: 13px; line-height: 1.6; margin: 9px 0; color: #526b71; }
-    .arcade-card { border-radius: 12px; padding: 11px; background: white; margin-top: 8px; }
-    .arcade-card h4 { font-size: 14px; margin: 0 0 5px; overflow-wrap: anywhere; }
+    .mai-heading h3 { display: flex; align-items: center; gap: 7px; font-size: 16px; margin: 0; color: var(--ink); }
+    .mai-status { font-size: 14px; line-height: 1.6; margin: 9px 0; color: #526b71; }
+    .arcade-card { border-radius: 0; border-top: 1px solid var(--line); padding: 14px 0; background: transparent; margin-top: 8px; }
+    .arcade-card h4 { font-size: 16px; margin: 0 0 5px; overflow-wrap: anywhere; }
     .arcade-card p { font-size: 12px; margin: 4px 0; line-height: 1.6; color: #64757a; overflow-wrap: anywhere; }
     .arcade-card .button { font-size: 12px; padding: 8px 10px; }
     .my-location-dot { width: 19px; height: 19px; background: #267bdb; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 6px #267bdb25, 0 2px 8px #163c5c44; }
     .query-location-dot { width: 19px; height: 19px; background: #fff; color: #3e8ea0; border: 2px solid #3e8ea0; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
-    .maplibregl-popup-content { border-radius: 13px; padding: 14px; font-family: inherit; }
+    .maplibregl-popup-content { border-radius: 8px; padding: 16px; font-family: inherit; }
     .maplibregl-ctrl-attrib { max-width: calc(100vw - 45px); }
     .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group { margin-bottom: 30px; }
     .pin-button { border: 0; background: transparent; padding: 0; width: 40px; height: 44px; }
     .pin-button .marker { margin: 0 auto; }
-    .side-card { display: flex; flex-direction: column; min-height: 580px; }
-    .side-head { padding: 21px 21px 12px; }
-    .eyebrow { color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-    .side-title-row { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 5px; }
-    .side-title { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .side-card { position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 580px; }
+    .side-card::before { content: ''; position: absolute; z-index: -1; right: -10px; bottom: 40px; width: min(76%, 320px); height: 420px; pointer-events: none; background: url('assets/pilgrimage-characters.webp') right bottom / contain no-repeat; opacity: .22; }
+    .side-head { padding: 22px 22px 16px; }
+    .eyebrow { color: var(--muted); font-size: 12px; }
+    .side-title-row { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
+    .side-title { margin: 0; font-size: 22px; letter-spacing: -.03em; font-weight: 650; }
     .weather-note { color: var(--muted); font-size: 12px; white-space: nowrap; }
-    .filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 0 19px 13px; scrollbar-width: none; }
+    .filter-row { display: flex; gap: 6px; overflow-x: auto; padding: 0 20px 16px; scrollbar-width: none; }
     .filter-row::-webkit-scrollbar { display: none; }
-    .filter-chip { flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: #626d66; border-radius: 999px; padding: 7px 10px; font-size: 11px; }
-    .filter-chip.active { border-color: var(--green); background: var(--green-soft); color: var(--green); }
-    .content-scroll { overflow: auto; min-height: 0; padding: 0 16px 14px; flex: 1; }
-    .flight-card { width: 100%; display: block; text-align: left; font: inherit; color: inherit; border: 1px solid #f0dfd7; background: linear-gradient(135deg, #fffaf7, #fffdf9); border-radius: 12px; padding: 9px 10px; margin: 2px 0 9px; cursor: pointer; }
-    .flight-card:hover { border-color: #c9917d; background: #fff7f0; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 6px; padding: 7px 9px; font-size: 14px; }
+    .filter-chip.active { border-color: transparent; background: var(--green-soft); color: var(--green); }
+    .content-scroll { overflow: auto; min-height: 0; padding: 0 20px 16px; flex: 1; }
+    .flight-card { width: 100%; display: block; text-align: left; font: inherit; color: inherit; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 12px; margin: 0 0 18px; cursor: pointer; }
+    .flight-card:hover { border-color: #9bafa4; background: #f7faf8; }
     .flight-card:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
     .flight-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .flight-label { min-width: 0; display: flex; align-items: center; gap: 5px; font-size: 13px; }
+    .flight-label { min-width: 0; display: flex; align-items: center; gap: 5px; font-size: 14px; }
     .flight-label strong { flex-shrink: 0; }
     .flight-airline { color: #657068; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .flight-symbol { flex-shrink: 0; color: #a75d49; }
     .flight-card .flight-status { padding: 2px 6px; }
-    .flight-compact-route { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 6px; font-size: 13px; line-height: 1.5; white-space: nowrap; }
-    .flight-compact-route strong { font-size: 15px; }
+    .flight-compact-route { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 6px; font-size: 14px; line-height: 1.5; white-space: nowrap; }
+    .flight-compact-route strong { font-size: 14px; }
     .flight-compact-route .route-arrow { font-size: 14px; }
-    .flight-status { flex-shrink: 0; border-radius: 999px; font-size: 12px; padding: 5px 8px; }
+    .flight-status { flex-shrink: 0; border-radius: 4px; font-size: 12px; padding: 5px 8px; }
     .flight-status.confirmed { background: #e5f1e9; color: #286047; }
     .flight-route { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 5px; align-items: center; margin: 12px 1px 9px; }
-    .airport strong { display: block; font-size: 17px; letter-spacing: -.03em; }
-    .airport span { display: block; color: #657068; font-size: 13px; margin-top: 2px; }
+    .airport strong { display: block; font-size: 16px; letter-spacing: -.03em; }
+    .airport span { display: block; color: #657068; font-size: 14px; margin-top: 2px; }
     .airport:last-child { text-align: right; }
-    .route-arrow { color: #c77b63; text-align: center; font-size: 18px; }
+    .route-arrow { color: #c77b63; text-align: center; font-size: 16px; }
     .flight-note { margin: 10px 0; color: #6e645e; font-size: 14px; line-height: 1.6; }
     .flight-dialog { width: min(620px, calc(100% - 28px)); overflow: hidden; }
     .flight-dialog[open] { display: flex; flex-direction: column; }
     .flight-dialog .dialog-head { flex-shrink: 0; border-bottom: 1px solid #ede8e0; padding-bottom: 14px; gap: 12px; }
     .flight-dialog .dialog-body { overflow: auto; overscroll-behavior: contain; min-height: 0; padding-top: 16px; }
-    .flight-dialog .flight-route { padding: 16px 12px; border-radius: 14px; background: #fff7f0; }
-    .flight-dialog .airport strong { font-size: 24px; }
+    .flight-dialog .flight-route { padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; }
+    .flight-dialog .airport strong { font-size: 22px; }
     .flight-dialog .airport small { display: block; color: #657068; font-size: 12px; margin-top: 5px; }
     .flight-detail-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
     .flight-memo { margin-top: 18px; }
@@ -174,70 +175,70 @@
     .flight-lookup summary { cursor: pointer; font-size: 14px; color: #657068; }
     .flight-detail-heading { font-size: 16px; margin: 20px 0 8px; }
     .flight-dialog .nav-link { font-size: 14px; min-height: 40px; }
-    .flight-dialog .nav-note { font-size: 13px; line-height: 1.6; }
-    .section-label { display: flex; align-items: center; justify-content: space-between; margin: 15px 3px 8px; color: #727b75; font-size: 11px; font-weight: 650; }
+    .flight-dialog .nav-note { font-size: 14px; line-height: 1.6; }
+    .section-label { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 4px; color: var(--muted); font-size: 12px; font-weight: 600; }
     .section-label span:last-child { font-weight: 450; }
-    .place-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 9px; border: 1px solid #edede6; background: #fff; border-radius: 15px; padding: 10px; margin-bottom: 7px; }
+    .place-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: start; gap: 10px; border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0; padding: 16px 0; margin: 0; }
     .place-row > div:nth-child(2) { min-width: 0; }
-    .place-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: var(--place-soft); font-size: 16px; }
+    .place-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 0; background: transparent; color: var(--muted); font-size: 16px; }
     .place-main { min-width: 0; }
-    .place-main strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
-    .place-main span { display: block; color: var(--muted); font-size: 10px; margin-top: 4px; }
-    .stay-details { font-size: 12px; color: #68736c; line-height: 1.6; margin: 6px 0; overflow-wrap: anywhere; }
+    .place-main strong { display: block; overflow-wrap: anywhere; font-size: 16px; line-height: 1.5; font-weight: 650; }
+    .place-main span { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 4px; }
+    .stay-details { font-size: 14px; color: var(--muted); line-height: 1.7; margin: 10px 0; overflow-wrap: anywhere; }
     .stay-details p { margin: 3px 0; }
-    .booking-tag { display: inline-block; border-radius: 6px; background: #f1eee7; padding: 2px 6px; color: #70664f; }
-    .place-actions { display: flex; align-items: center; gap: 3px; }
-    .mini-btn { border: 0; background: transparent; width: 26px; height: 28px; padding: 0; color: #7a837e; border-radius: 8px; }
+    .booking-tag { display: inline-block; color: var(--muted); font-size: 12px; }
+    .place-actions { display: flex; align-items: center; gap: 2px; }
+    .mini-btn { border: 0; background: transparent; width: 28px; height: 32px; padding: 0; color: var(--muted); border-radius: 6px; }
     .mini-btn:hover { background: #f0f3ee; color: var(--green); }
     .mini-btn:disabled { opacity: .25; cursor: default; }
     .place-open { display: block; width: 100%; max-width: 100%; border: 0; background: transparent; padding: 0; text-align: left; min-width: 0; }
-    .empty { padding: 20px 13px; margin: 5px 0; border: 1px dashed #d9ddd6; border-radius: 16px; color: var(--muted); font-size: 12px; text-align: center; line-height: 1.6; }
-    .quick-add { margin: 1px 17px 17px; padding: 12px; border: 1px dashed #b9c9bf; color: var(--green); background: #f6faf6; border-radius: 14px; font-weight: 650; font-size: 12px; }
-    .footnote { margin: 0 20px 15px; color: #879088; font-size: 10px; line-height: 1.5; }
-    .marker { display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid white; border-radius: 50% 50% 50% 8px; transform: rotate(-45deg); box-shadow: 0 3px 9px #16221d4a; color: white; font-size: 15px; }
+    .empty { padding: 16px 0; margin: 0; border: 0; border-radius: 0; color: var(--muted); font-size: 14px; text-align: left; line-height: 1.7; }
+    .quick-add { margin: 0 20px 12px; padding: 12px; border: 1px solid var(--green); color: white; background: var(--green); border-radius: 8px; font-weight: 600; font-size: 14px; }
+    .footnote { margin: 0 20px 16px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .marker { display: grid; place-items: center; width: 34px; height: 34px; border: 2px solid white; border-radius: 50% 50% 50% 8px; transform: rotate(-45deg); box-shadow: 0 3px 9px #16221d4a; color: white; font-size: 14px; }
     .marker span { transform: rotate(45deg); }
     .marker.airport { border-radius: 50%; background: #596b7b; }
     .popup-title { font-weight: 700; font-size: 12px; }
-    .popup-sub { color: #727b75; font-size: 10px; margin-top: 3px; }
-    dialog { width: min(440px, calc(100% - 28px)); max-height: min(90dvh, 720px); border: 1px solid #e7e7df; border-radius: 22px; padding: 0; box-shadow: 0 20px 70px #19251f40; color: var(--ink); }
-    dialog::backdrop { background: #19251f66; backdrop-filter: blur(3px); }
-    .dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 9px; }
-    .dialog-head h2 { margin: 0; font-size: 18px; }
-    .close-btn { border: 0; border-radius: 50%; background: #f0f1ec; width: 31px; height: 31px; color: #58645c; font-size: 18px; }
+    .popup-sub { color: #727b75; font-size: 12px; margin-top: 3px; }
+    dialog { width: min(440px, calc(100% - 28px)); max-height: min(90dvh, 720px); border: 1px solid var(--line); border-radius: 12px; padding: 0; background: var(--surface); box-shadow: 0 16px 48px #19251f26; color: var(--ink); }
+    dialog::backdrop { background: #19251f66; }
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 14px; }
+    .dialog-head h2 { margin: 0; font-size: 16px; }
+    .close-btn { border: 0; border-radius: 6px; background: #f0f3f1; width: 36px; height: 36px; color: var(--muted); font-size: 22px; }
     .dialog-body { padding: 8px 20px 20px; }
     #placeDialog { width: min(600px, calc(100% - 28px)); }
     .place-search-controls { display: flex; gap: 8px; }
     .field > label { display: block; color: #66716a; font-size: 14px; margin-bottom: 6px; }
     .place-search-controls input { flex: 1; min-width: 0; }
     .place-search-controls button { flex: 0 0 auto; }
-    .place-search-status, .place-search-source, .place-search-map-message { font-size: 13px; line-height: 1.6; color: #66716a; margin: 8px 0; }
+    .place-search-status, .place-search-source, .place-search-map-message { font-size: 14px; line-height: 1.6; color: #66716a; margin: 8px 0; }
     .place-search-source a { color: var(--green); }
     .place-search-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 10px; }
-    .place-search-result { display: grid; gap: 5px; width: 100%; text-align: left; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
-    .place-search-result strong { font-size: 15px; }
+    .place-search-result { display: grid; gap: 5px; width: 100%; text-align: left; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: white; color: var(--ink); }
+    .place-search-result strong { font-size: 14px; }
     .place-search-result span { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
     .place-search-result small { color: #66716a; font-size: 12px; }
     .place-search-result[aria-pressed="true"] { border-color: var(--green); background: var(--green-soft); box-shadow: inset 3px 0 var(--green); }
     .place-search-map { height: 220px; width: 100%; border-radius: 12px; margin-bottom: 10px; background: #e6ece7; }
-    .search-map-pin { width: 32px; height: 32px; padding: 0; border: 2px solid white; border-radius: 50%; background: #245a49; color: white; font-size: 15px; font-weight: 700; box-shadow: 0 2px 6px #0005; }
+    .search-map-pin { width: 32px; height: 32px; padding: 0; border: 2px solid white; border-radius: 50%; background: #245a49; color: white; font-size: 14px; font-weight: 700; box-shadow: 0 2px 6px #0005; }
     .search-map-pin.selected { background: #ac4e2e; outline: 3px solid #ac4e2e55; }
     .place-search-result:focus-visible, .search-map-pin:focus-visible { outline: 3px solid #d17b5e; outline-offset: 2px; }
     .place-search-controls button:disabled { opacity: .6; cursor: wait; }
-    .coord-caption { color: var(--muted); font-size: 11px; padding: 0 0 10px; }
+    .coord-caption { color: var(--muted); font-size: 12px; padding: 0 0 10px; }
     .field { display: block; margin: 0 0 12px; }
-    .field > span { display: block; color: #66716a; font-size: 11px; margin-bottom: 6px; }
-    .field input, .field select, .field textarea { width: 100%; min-height: 42px; border: 1px solid #dedfd7; border-radius: 11px; padding: 10px 11px; background: #fff; color: var(--ink); outline: none; }
+    .field > span { display: block; color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 11px; background: white; color: var(--ink); font-size: 16px; outline: none; }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: #79a08d; box-shadow: 0 0 0 3px #dcebe2; }
     .field textarea { min-height: 75px; resize: vertical; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .dialog-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; }
-    .button { border: 0; border-radius: 12px; padding: 11px 15px; font-weight: 650; font-size: 12px; }
+    .button { border: 0; border-radius: 6px; padding: 11px 15px; font-weight: 600; font-size: 14px; }
     .button.primary { background: var(--green); color: white; flex: 1; }
     .button.secondary { background: #f0f1ec; color: #5d6861; }
     .button.danger { color: #a84e3e; background: #fff0ec; }
-    .attribution-hint { font-size: 10px; }
-    .toast { position: fixed; z-index: 1500; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .2s ease; background: #263a31; color: white; border-radius: 999px; padding: 10px 15px; font-size: 12px; box-shadow: var(--shadow); }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .attribution-hint { font-size: 12px; }
+    .toast { position: fixed; z-index: 1500; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); opacity: 0; pointer-events: none; background: #263a31; color: white; border-radius: 8px; padding: 10px 15px; font-size: 14px; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translateX(-50%); }
     .app-launch-notice { position: fixed; z-index: 1600; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 14px; width: max-content; max-width: calc(100vw - 24px); padding: 12px 16px; border-radius: 14px; background: #263a31; color: white; box-shadow: var(--shadow); font-size: 14px; }
     .app-launch-notice a { color: white; text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; }
     .app-launch-notice button { color: white; background: transparent; border: 1px solid #ffffff60; border-radius: 8px; font: inherit; padding: 6px 10px; cursor: pointer; }
@@ -245,58 +246,52 @@
     .wechat-notice strong, .wechat-notice p, .wechat-copy-status { flex-basis: 100%; margin: 0; line-height: 1.6; }
     .wechat-notice textarea { width: 100%; flex-basis: 100%; min-height: 64px; padding: 10px; border-radius: 8px; border: 1px solid #ffffff60; background: #fff; color: #263a31; font-size: 16px; resize: none; }
     .mobile-only, .sheet-toggle, .sheet-date-picker { display: none; }
-    .search-groups, .side-details { display: contents; }
+    .side-details { display: contents; }
     .map-top-actions { display: flex; gap: 6px; pointer-events: auto; }
     @media (max-width: 850px) {
+      body::before { background-image: url('assets/japan-atmosphere.webp'), url('assets/japan-atmosphere.webp'); background-size: 700px auto; background-position: left -20px, right -20px; opacity: .40; }
+      .side-card::before { right: -8px; bottom: 40px; width: 240px; height: 340px; opacity: .18; }
       html, body { height: 100%; overflow: hidden; }
       .app { height: 100dvh; min-height: 0; padding: max(7px, env(safe-area-inset-top)) 8px max(5px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
       .topbar { flex: 0 0 30px; gap: 8px; margin: 0; }
       .brand { gap: 8px; }
-      .brand-mark { width: 28px; height: 28px; font-size: 16px; border-radius: 10px; box-shadow: none; }
-      .brand h1 { font-size: 15px; }
-      .brand p, .trip-meta .trip-badge:first-child { display: none; }
-      .trip-meta { font-size: 11px; }
+
+      .brand h1 { font-size: 14px; }
+      .brand p { display: none; }
+      .trip-meta { font-size: 12px; }
       .trip-badge { padding: 5px 7px; border: 0; background: transparent; }
-      .datebar { flex: 0 0 44px; gap: 4px; padding: 0; touch-action: pan-x; }
+      .datebar { flex: 0 0 44px; gap: 4px; padding: 0; margin-bottom: 0; border-bottom: 0; touch-action: pan-x; }
       .date-chip { min-width: 45px; padding: 5px 7px; border-radius: 12px; }
-      .date-chip span { font-size: 10px; margin-bottom: 2px; }
+      .date-chip span { font-size: 12px; margin-bottom: 2px; }
       .date-chip strong { font-size: 14px; }
       .date-chip.unscheduled { min-width: 72px; }
-      .explore-tools { position: relative; flex: 0 0 40px; flex-wrap: nowrap; gap: 6px; margin: 0; min-width: 0; }
+      .explore-tools { position: relative; flex: 0 0 auto; flex-wrap: wrap; gap: 6px; margin: 0; min-width: 0; }
       .mobile-only { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-      .tool-button { min-height: 40px; padding: 7px 10px; border-radius: 11px; font-size: 13px; }
+      .tool-button { min-height: 40px; padding: 7px 10px; border-radius: 8px; font-size: 14px; }
       #liveLocationBtn { flex: 0 0 40px; width: 40px; padding: 0; font-size: 0; }
-      #liveLocationBtn::before { content: '◎'; font-size: 23px; line-height: 1; }
-      #mobileToolsBtn { flex: 0 0 auto; }
-      #mobileToolsBtn .maimai-icon { width: 20px; height: 20px; }
-      .position-status { min-width: 0; flex: 1; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .search-groups { display: none; position: absolute; z-index: 900; top: calc(100% + 6px); left: 0; right: 0; padding: 10px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); }
-      .tools-open .search-groups { display: grid; gap: 8px; }
-      .arcade-search-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; border-radius: 12px; }
-      .arcade-search-group .tool-button { min-height: 46px; padding: 7px; gap: 7px; }
-      .arcade-search-group .maimai-icon, .pilgrim-symbol { width: 22px; height: 22px; flex-basis: 22px; font-size: 21px; }
-      .search-copy { gap: 2px; }
-      .search-copy strong { font-size: 13px; }
-      .search-copy small { font-size: 11px; }
+      #liveLocationBtn::before { content: '◎'; font-size: 22px; line-height: 1; }
+      .position-status { min-width: 0; flex: 1 0 100%; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .search-groups { gap: 6px; }
+      .search-menu:last-child .search-origins { left: auto; right: 0; }
+      .search-origins .tool-button { min-height: 44px; }
       .layout { position: relative; display: block; flex: 1 1 0; min-height: 0; height: auto; }
-      .map-card { position: absolute; inset: 0 0 58px; min-height: 0; border-radius: 17px; }
+      .map-card { position: absolute; inset: 0 0 58px; min-height: 0; border-radius: 12px; }
       .map-top { top: 9px; left: 9px; right: 9px; align-items: flex-start; gap: 6px; }
-      .map-label { padding: 7px 9px; border-radius: 11px; max-width: calc(100% - 124px); }
-      .map-label small { font-size: 10px; margin-bottom: 2px; }
-      .map-label strong { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .map-action { min-height: 40px; padding: 7px 10px; border-radius: 11px; font-size: 12px; }
-      #mobileMapOptionsBtn { width: 40px; padding: 0; font-size: 19px; }
+      .map-label { padding: 7px 9px; border-radius: 8px; max-width: calc(100% - 140px); }
+      .map-label small { font-size: 12px; margin-bottom: 2px; }
+      .map-label strong { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .map-action { min-height: 40px; padding: 7px 10px; border-radius: 8px; font-size: 12px; }
+      #mobileMapOptionsBtn { width: 40px; padding: 0; font-size: 22px; }
       .map-options { display: none; top: 62px; left: auto; right: 9px; padding: 8px; gap: 6px; }
       .map-settings-open .map-options { display: flex; }
-      .map-options select { font-size: 13px; max-width: 120px; min-height: 32px; }
+      .map-options select { font-size: 14px; max-width: 120px; min-height: 32px; }
       .map-options label { min-height: 32px; font-size: 12px; }
       .map-notice { top: 108px; font-size: 12px; }
       .map-legend { left: 9px; bottom: 38px; max-height: 58px; }
-      .map-hint { display: none; }
-      .legend-item { font-size: 11px; padding: 4px 7px; }
+      .legend-item { font-size: 12px; padding: 4px 7px; }
       .maplibregl-ctrl-group button { width: 36px; height: 36px; }
-      .maplibregl-ctrl-attrib { max-width: calc(100vw - 28px); font-size: 10px; line-height: 15px; }
-      .side-card { position: fixed; z-index: 1000; left: 8px; right: 8px; bottom: max(5px, env(safe-area-inset-bottom)); height: 58px; min-height: 0; border-radius: 17px 17px 12px 12px; box-shadow: 0 -5px 20px #203b3012; transition: height .2s ease; }
+      .maplibregl-ctrl-attrib { max-width: calc(100vw - 28px); font-size: 12px; line-height: 15px; }
+      .side-card { position: fixed; z-index: 1000; left: 8px; right: 8px; bottom: max(5px, env(safe-area-inset-bottom)); height: 58px; min-height: 0; border-radius: 12px 12px 8px 8px; box-shadow: 0 -5px 20px #203b3012;  }
       .side-card.sheet-open { height: min(56dvh, 480px); }
       .side-card.sheet-full { height: calc(100dvh - max(7px, env(safe-area-inset-top)) - max(5px, env(safe-area-inset-bottom))); }
       .side-card.sheet-dragging { transition: none; will-change: height; }
@@ -307,23 +302,23 @@
       #mobileSheetSummary { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 650; }
       #mobileSheetAction { color: var(--green); font-size: 12px; flex: 0 0 auto; }
       .sheet-full .sheet-date-picker { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; margin: 0 13px 9px; font-size: 14px; color: var(--green); }
-      .sheet-date-picker select { flex: 1; min-width: 0; min-height: 40px; border: 1px solid var(--line); background: white; border-radius: 10px; padding: 6px 9px; font-size: 16px; color: var(--ink); }
+      .sheet-date-picker select { flex: 1; min-width: 0; min-height: 40px; border: 1px solid var(--line); background: white; border-radius: 6px; padding: 6px 9px; font-size: 16px; color: var(--ink); }
       .side-details { display: none; }
       .sheet-open .side-details { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
       .side-head { padding: 0 13px 9px; }
-      .side-title { font-size: 17px; }
+      .side-title { font-size: 16px; }
       .side-title-row { gap: 3px; margin-top: 3px; }
       .weather-note { font-size: 12px; white-space: normal; }
-      .eyebrow { font-size: 11px; }
+      .eyebrow { font-size: 12px; }
       .filter-row { flex-shrink: 0; padding: 0 12px 8px; gap: 5px; }
       .filter-chip { min-height: 34px; padding: 6px 9px; font-size: 12px; }
       .content-scroll { max-height: none; padding: 0 10px 12px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-      .quick-add { flex-shrink: 0; margin: 0 10px 8px; padding: 9px; min-height: 38px; font-size: 13px; }
+      .quick-add { flex-shrink: 0; margin: 0 10px 8px; padding: 9px; min-height: 38px; font-size: 14px; }
       .footnote { display: none; }
       .place-main strong { font-size: 14px; }
       .place-main span { font-size: 12px; }
       .mini-btn { min-width: 30px; height: 36px; }
-      .nav-link, .place-nav { font-size: 13px; }
+      .nav-link, .place-nav { font-size: 14px; }
       .toast { max-width: calc(100vw - 24px); width: max-content; border-radius: 12px; }
       .field input, .field select, .field textarea, .work-add input { font-size: 16px; }
     }
@@ -333,6 +328,9 @@
       .side-head { display: none; }
     }
     @media (prefers-reduced-motion: reduce) { .side-card { transition: none; } }
+
+    button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+    .tool-button:hover, .filter-chip:hover, .date-chip:not(.active):hover { background: var(--green-soft); color: var(--green); }
   </style>
   <link rel="stylesheet" href="weather.css">
 </head>
@@ -340,28 +338,32 @@
   <main class="app">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">✦</div>
-        <div><h1>日本旅行地图</h1><p>把想去的地方，慢慢放进旅程里</p></div>
+        <div><h1>日本旅行地图</h1><p>关西 · 东京</p></div>
       </div>
-      <div class="trip-meta"><span class="trip-badge">🗾 关西 · 东京</span><span class="trip-badge"><strong>2027.02.12</strong> — <strong>02.22</strong></span></div>
+      <div class="trip-meta"><span class="trip-badge"><strong>2027.02.12</strong> — <strong>02.22</strong></span></div>
     </header>
 
     <nav class="datebar" id="datebar" aria-label="选择行程日期"></nav>
     <div class="explore-tools">
       <button class="tool-button" type="button" id="liveLocationBtn" aria-pressed="false" aria-label="显示我的位置" title="显示我的位置">◎ 显示我的位置</button>
-      <button class="tool-button weather-query-button" type="button" id="weatherBtn" aria-haspopup="dialog" aria-controls="weatherDialog"><span aria-hidden="true">☀</span> 天气预报</button>
-      <button class="tool-button mobile-only" type="button" id="mobileToolsBtn" aria-expanded="false" aria-controls="searchGroups"><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true">附近查找</button>
+      <button class="tool-button weather-query-button" type="button" id="weatherBtn" aria-haspopup="dialog" aria-controls="weatherDialog">天气预报</button>
       <div class="search-groups" id="searchGroups">
-      <div class="arcade-search-group" role="group" aria-label="查找 maimai DX 机厅">
-        <button class="tool-button mai" type="button" id="maiBtn" aria-label="mai一下 · 找附近机厅" title="将当前坐标发送给 nearcade，查找附近 maimai DX 机厅"><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true"><span class="search-copy"><strong id="maiBtnLabel">mai一下</strong><small>找当前位置机厅</small></span></button>
-        <button class="tool-button" type="button" id="maiMapBtn" aria-label="找机厅 · 按地图中心" title="以地图中心查找 maimai DX 机厅"><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true"><span class="search-copy"><strong>找机厅</strong><small>按地图中心</small></span></button>
+        <details class="search-menu" id="maiMenu" name="nearby-search">
+          <summary class="tool-button"><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true"><span id="maiBtnLabel">mai一下</span></summary>
+          <div class="search-origins" role="group" aria-label="机厅查询起点">
+            <button class="tool-button" type="button" id="maiBtn" title="使用当前位置查找 maimai DX 机厅">当前位置</button>
+            <button class="tool-button" type="button" id="maiMapBtn">地图中心</button>
+          </div>
+        </details>
+        <details class="search-menu" id="pilgrimMenu" name="nearby-search">
+          <summary class="tool-button"><span id="pilgrimBtnLabel">找找圣地</span></summary>
+          <div class="search-origins" role="group" aria-label="圣地查询起点">
+            <button class="tool-button" type="button" id="pilgrimBtn">当前位置</button>
+            <button class="tool-button" type="button" id="pilgrimMapBtn">地图中心</button>
+          </div>
+        </details>
       </div>
-      <div class="arcade-search-group pilgrim-search-group" role="group" aria-label="查找附近巡礼圣地">
-        <button class="tool-button pilgrim" type="button" id="pilgrimBtn" aria-label="找找圣地 · 当前位置 2km"><span class="pilgrim-symbol" aria-hidden="true">✦</span><span class="search-copy"><strong id="pilgrimBtnLabel">找找圣地</strong><small>当前位置 · 2 km</small></span></button>
-        <button class="tool-button" type="button" id="pilgrimMapBtn" aria-label="找找圣地 · 地图中心 2km"><span class="pilgrim-symbol" aria-hidden="true">✦</span><span class="search-copy"><strong>找找圣地</strong><small>地图中心 · 2 km</small></span></button>
-      </div>
-      </div>
-      <span class="position-status" id="positionStatus" role="status">定位未开启 · 仅开启后更新蓝点</span>
+      <span class="position-status" id="positionStatus" role="status">定位未开启</span>
     </div>
 
     <section class="layout">
@@ -374,7 +376,6 @@
         <div class="map-legend" id="mapLegend"></div>
         <div class="map-notice" id="mapNotice" role="status" hidden><span id="mapNoticeText"></span><button type="button" id="retryTiles">重试</button></div>
         <div class="map-options" id="mapOptions"><select id="basemapSelect" aria-label="底图样式"><option value="color">彩色旅行地图</option><option value="vector">淡色简洁地图</option><option value="fallback">国土地理院备用</option></select><label><input id="railToggle" type="checkbox" checked>轨道与车站</label></div>
-        <div class="map-hint">铁路：绿 · 地铁：紫 · 放大查看地点</div>
       </div>
 
       <aside class="side-card">
@@ -382,28 +383,28 @@
         <label class="sheet-date-picker">行程日期<select id="mobileSheetDate" aria-label="全屏行程日期"></select></label>
         <div class="side-details" id="tripPanelDetails">
         <div class="side-head">
-          <div class="eyebrow" id="dayLabel">DAY 01 · 2027</div>
-          <div class="side-title-row"><h2 class="side-title" id="dayTitle">大阪 · 抵达日</h2><span class="weather-note" id="daySubtitle">✈ HO1337 · 已订</span></div>
+          <div class="eyebrow" id="dayLabel">2/12 周五</div>
+          <div class="side-title-row"><h2 class="side-title" id="dayTitle">大阪 · 抵达日</h2><span class="weather-note" id="daySubtitle">HO1337 · 已订</span></div>
         </div>
         <div class="filter-row" id="filters" aria-label="地点类别筛选"></div>
         <div class="content-scroll">
           <section class="mai-panel" id="maiPanel" hidden aria-label="附近 maimai DX 机厅">
             <div class="mai-heading"><h3><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true">附近 maimai DX 机厅</h3><button class="close-btn" type="button" id="closeMaiBtn" aria-label="收起附近机厅">×</button></div>
             <p class="mai-status" id="maiStatus" role="status"></p>
-            <p class="nav-note">nearcade 的 5 km 档 · 范围及排序以其算法为准，可能包含更远但交通便捷的店铺。</p>
+            <p class="nav-note">nearcade 5 km 档，可能包含更远但交通便捷的机厅。</p>
             <a class="place-nav" id="nearSourceLink" href="https://nearca.de/" target="_blank" rel="noopener noreferrer">在 nearcade 查看</a>
             <div id="maiResults"></div>
           </section>
           <section class="mai-panel pilgrim-panel" id="pilgrimPanel" hidden aria-label="附近巡礼圣地">
-            <div class="mai-heading"><h3>✦ 附近巡礼圣地</h3><button class="close-btn" type="button" id="closePilgrimBtn" aria-label="收起附近圣地">×</button></div>
+            <div class="mai-heading"><h3>附近巡礼圣地</h3><button class="close-btn" type="button" id="closePilgrimBtn" aria-label="收起附近圣地">×</button></div>
             <p class="mai-status" id="pilgrimStatus" role="status"></p>
-            <p class="nav-note">仅搜索勾选的关注作品 · 直线距离 2 km。续作、剧场版需单独添加；点位覆盖以 Anitabi 接口实际返回为准。</p>
+            <p class="nav-note">搜索勾选作品的 2 km 范围，距离按直线计算。续作、剧场版需单独添加。</p>
             <details class="work-settings"><summary>管理关注作品 <span id="workCount"></span></summary>
               <div id="workList"></div>
               <form class="work-add" id="workForm"><input id="workInput" required maxlength="200" aria-label="作品 ID 或 Bangumi / Anitabi 作品链接" placeholder="作品 ID 或 Bangumi / Anitabi 链接"><button type="submit" class="button secondary">添加</button></form>
-              <p class="nav-note">例如：bgm.tv/subject/328609 对应 ID 328609。添加后可点击查找读取名称；最多关注 20 部。</p>
+              <p class="nav-note">支持作品 ID 或链接，最多 20 部；查找时读取名称。</p>
             </details>
-            <button class="button secondary" type="button" id="refreshPilgrimBtn">刷新来源数据并重查</button>
+            <button class="button secondary" type="button" id="refreshPilgrimBtn">刷新并重查</button>
             <select class="work-filter" id="workFilter" aria-label="筛选巡礼作品" hidden></select>
             <div id="pilgrimResults"></div>
             <button class="button secondary" type="button" id="morePilgrimBtn" hidden>显示更多圣地</button>
@@ -412,7 +413,7 @@
           <div id="dayContent"></div>
         </div>
         <button class="quick-add" id="quickAddBtn" type="button">＋ 添加地点或备注</button>
-        <p class="footnote">✦ 行程保存在当前设备。三段机票均已订；点击航班卡片查看详情与机场接驳。</p>
+        <p class="footnote">行程自动保存在当前设备。</p>
         </div>
       </aside>
     </section>
@@ -448,8 +449,8 @@
         <div class="place-search-map" id="placeSearchMap" role="region" aria-label="候选地点地图，编号与下方候选一致" hidden></div>
         <p class="place-search-map-message" id="placeSearchMapMessage" hidden>候选地图加载失败，仍可从下方列表选择地址。</p>
         <div class="place-search-results" id="placeSearchResults" role="group" aria-label="候选地址" aria-busy="false"></div>
-        <p class="place-search-source">搜索日本境内地点 · <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>。名称与参考位置仅在搜索时发送，地址可补充修改。</p>
-        <label class="field"><span>完整地址（用于 Google 地图查看与机场接驳路线）</span><input name="address" maxlength="240" placeholder="例如：東京都北区中里2丁目25-6 M東京"></label>
+        <p class="place-search-source">日本地点搜索 · <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>。搜索时发送名称与参考位置；地址可修改。</p>
+        <label class="field"><span>完整地址</span><input name="address" maxlength="240" placeholder="例如：東京都北区中里2丁目25-6 M東京"></label>
         <div class="field-row">
           <label class="field"><span>类别</span><select name="category" id="categorySelect"></select></label>
           <label class="field"><span>安排日期</span><select name="date" id="dateSelect"></select></label>
@@ -458,7 +459,7 @@
         <label class="field" id="mealField" hidden><span>用餐安排</span><select name="meal"><option value="">未指定</option><option value="lunch">午餐</option><option value="dinner">晚餐</option></select></label>
         <div id="bookingFields">
           <label class="field"><span>关联平台（可选）</span><select name="bookingProvider"><option value="">自动识别 / 未指定</option><option value="Airbnb">Airbnb</option><option value="携程">携程</option><option value="Agoda">Agoda</option><option value="Klook">Klook</option><option value="HopeGoo">HopeGoo</option><option value="Tabelog">Tabelog · 微信小程序</option><option value="其他">其他</option></select></label>
-          <label class="field"><span>房源 / 餐厅 / 订单 / 活动链接（可选）</span><input name="bookingUrl" type="url" maxlength="2048" placeholder="粘贴平台分享的完整网页链接" aria-describedby="bookingLinkHint"></label>
+          <label class="field"><span>预订或活动链接（可选）</span><input name="bookingUrl" type="url" maxlength="2048" placeholder="粘贴平台分享的完整网页链接" aria-describedby="bookingLinkHint"></label>
           <p class="nav-note" id="bookingLinkHint">粘贴链接后自动识别平台；手机优先打开 App。</p>
           <a class="place-nav app-link" id="editorBookingLink" target="_blank" rel="noopener noreferrer" hidden></a>
         </div>
@@ -496,17 +497,17 @@
       flight: { label: '机场', icon: '✈', color: '#596b7b', soft: '#e9edf1' }
     };
     const DAY_INFO = {
-      '2027-02-12': ['大阪 · 抵达日', '✈ HO1337 · 20:55 抵达关西'],
+      '2027-02-12': ['大阪 · 抵达日', 'HO1337 · 20:55 抵达关西'],
       '2027-02-13': ['大阪', 'Airbnb · 大国町 · 第 2 晚'],
       '2027-02-14': ['京都', '入住 Hearton Hotel Kyoto'],
       '2027-02-15': ['京都', '京都住宿 · 第 2 晚'],
       '2027-02-16': ['京都', '京都住宿 · 第 3 晚'],
-      '2027-02-17': ['大阪 → 东京 · 转场日', '✈ MM309 · KIX → NRT'],
+      '2027-02-17': ['大阪 → 东京 · 转场日', 'MM309 · KIX → NRT'],
       '2027-02-18': ['东京', '住宿：驹込附近'],
       '2027-02-19': ['东京', '住宿：驹込附近'],
       '2027-02-20': ['东京', '住宿：驹込附近'],
       '2027-02-21': ['东京', '东京住宿 · 第 5 晚'],
-      '2027-02-22': ['东京 · 返程日', '✈ HO1380 · 13:15 起飞']
+      '2027-02-22': ['东京 · 返程日', 'HO1380 · 13:15 起飞']
     };
     const FLIGHTS = [
       { id: 'ho1337', date: '2027-02-12', airline: '吉祥航空', code: 'HO1337', from: 'PVG', fromName: '上海浦东', fromTerminal: 'T2', fromTime: '17:50', to: 'KIX', toName: '大阪关西', toTerminal: 'T1', toTime: '20:55', duration: '2h 05m', aircraft: '波音 787-9', meal: '有餐食', confirmed: true, note: '当地时间 · 抵达后前往大国町 Airbnb' },
@@ -624,7 +625,6 @@
       const selectedStyle = document.getElementById('basemapSelect').value;
       const vector = selectedStyle !== 'fallback';
       document.getElementById('railToggle').disabled = !vector;
-      document.querySelector('.map-hint').textContent = vector ? '铁路：绿 · 地铁：紫 · 放大查看地点' : '备用底图 · 点击地图放置地点';
       map.setStyle(selectedStyle === 'color' ? window.JP_COLOR_MAP_STYLE : selectedStyle === 'vector' ? window.JP_MAP_STYLE : fallbackStyle, { diff: false });
     }
     try {
@@ -691,7 +691,7 @@
       const status = document.getElementById('positionStatus');
       if (state === 'off') {
         livePosition = null; myLocationMarker?.remove(); myLocationMarker = null; drawLocationAccuracy();
-        status.textContent = '定位未开启 · 仅开启后更新蓝点';
+        status.textContent = '定位未开启';
       } else if (state === 'requesting') status.textContent = '正在获取位置，请允许浏览器定位…';
       else if (state === 'error') {
         status.textContent = message;
@@ -763,7 +763,7 @@
       document.getElementById('maiPanel').setAttribute('aria-busy', String(busy));
       ['maiBtn', 'maiMapBtn'].forEach(id => { document.getElementById(id).disabled = busy; });
       document.getElementById('maiBtnLabel').textContent = busy ? '查找中…' : 'mai一下';
-      document.getElementById('maiBtn').setAttribute('aria-label', busy ? '正在查找附近机厅' : 'mai一下 · 找附近机厅');
+      document.getElementById('maiBtn').setAttribute('aria-label', busy ? '正在查找附近机厅' : '当前位置');
     }
     function updateMaiMapLabels() {
       if (!maiView.active) return;
@@ -903,7 +903,7 @@
       pilgrimView.rows = []; pilgrimView.works = []; pilgrimView.filter = ''; clearPilgrimMarkers();
       document.getElementById('pilgrimResults').innerHTML = ''; document.getElementById('workFilter').hidden = true; document.getElementById('morePilgrimBtn').hidden = true;
       document.getElementById('pilgrimDiagnostics')?.remove();
-      document.getElementById('pilgrimStatus').textContent = '关注范围已更新，请点击“找找圣地”重新查询。';
+      document.getElementById('pilgrimStatus').textContent = '关注范围已更新，请重新查找圣地。';
       storeWorks(); renderWorkSettings(); updatePilgrimMapLabels();
     }
     async function searchPilgrims(useMapCenter = false) {
@@ -1008,7 +1008,7 @@
       return `<div class="stay-details">${place.bookingProvider ? `<span class="booking-tag">${escapeHtml(place.bookingProvider)}${stay ? ' 预订' : ''}</span>` : ''}
         ${stay && place.address ? `<p>${escapeHtml(place.address)}</p>` : ''}
         ${bookingUrl ? bookingLink(place) : '<p>预订页面链接待补，可在编辑中粘贴。</p>'}
-        ${stay && place.locationAccuracy === 'area' ? '<p>地图标记为区域示意；Google 地图使用完整地址。</p>' : stay && place.locationAccuracy === 'user-provided' ? '<p>按你提供的坐标标注；Google 地图使用同一坐标。</p>' : ''}</div>`;
+        ${stay && place.locationAccuracy === 'area' ? '<p>地图标记为区域示意；Google 地图使用完整地址。</p>' : ''}</div>`;
     }
     function bookingLink(place) {
       const url = safeBookingUrl(place.bookingUrl);
@@ -1035,7 +1035,7 @@
       if (flight.id === 'ho1337') links = navLink('KIX T1 至大阪 Airbnb', osaka, airportQuery('KIX', 'T1'));
       if (flight.id === 'mm309') links = navLink('京都住宿至 KIX T2', airportQuery('KIX', 'T2'), kyoto) + navLink('NRT T1 至东京 Airbnb', tokyo, airportQuery('NRT', 'T1'));
       if (flight.id === 'ho1380') links = navLink('东京住宿至 NRT T2', airportQuery('NRT', 'T2'), tokyo);
-      return `<div class="nav-links">${links}</div><p class="nav-note">打开 Google 地图公交路线；请在地图中选择实际出发时间。住宿优先使用已保存的完整地址，请核对房东提供的入口信息。</p>`;
+      return `<div class="nav-links">${links}</div><p class="nav-note">在 Google 地图中选择出发时间；住宿入口请与房东确认。</p>`;
     }
 
     function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify({ places, flights: flightState, accommodationRevision: ACCOMMODATION_REVISION })); }
@@ -1059,7 +1059,7 @@
       bar.innerHTML = DAYS.map(day => {
         const flight = getFlight(day);
         return `<button type="button" class="date-chip ${day === selectedDay ? 'active' : ''} ${flight ? 'flight-day' : ''}" data-day="${day}"><span>${dateLabel(day).split('/')[0]}月</span><strong>${dateLabel(day).split('/')[1]}</strong></button>`;
-      }).join('') + `<button type="button" class="date-chip unscheduled ${selectedDay === 'unscheduled' ? 'active' : ''}" data-day="unscheduled"><span>自由收集</span><strong>未排期</strong></button>`;
+      }).join('') + `<button type="button" class="date-chip unscheduled ${selectedDay === 'unscheduled' ? 'active' : ''}" data-day="unscheduled"><span>收藏</span><strong>未排期</strong></button>`;
       bar.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
         selectedDay = btn.dataset.day; activeFilter = 'all'; renderAll(); map?.resize();
       }));
@@ -1080,7 +1080,7 @@
     }
     function flightCard(flight) {
       return `<button type="button" class="flight-card" data-flight="${escapeHtml(flight.id)}" aria-haspopup="dialog" aria-controls="flightDialog" aria-label="${escapeHtml(flight.code)} ${escapeHtml(flight.airline)}，${escapeHtml(flight.fromTime)} ${escapeHtml(flight.fromTerminal)} 至 ${escapeHtml(flight.toTime)} ${escapeHtml(flight.toTerminal)}，已订，查看详情">
-        <span class="flight-top"><span class="flight-label"><span class="flight-symbol" aria-hidden="true">✈</span><strong>${escapeHtml(flight.code)}</strong><span class="flight-airline">${escapeHtml(flight.airline)}</span></span><span class="flight-status confirmed">✓ 已订</span></span>
+        <span class="flight-top"><span class="flight-label"><strong>${escapeHtml(flight.code)}</strong><span class="flight-airline">${escapeHtml(flight.airline)}</span></span><span class="flight-status confirmed">✓ 已订</span></span>
         <span class="flight-compact-route"><span><strong>${escapeHtml(flight.fromTime)}</strong> ${escapeHtml(flight.from)} ${escapeHtml(flight.fromTerminal)}</span><span class="route-arrow" aria-hidden="true">→</span><span><strong>${escapeHtml(flight.toTime)}</strong> ${escapeHtml(flight.to)} ${escapeHtml(flight.toTerminal)}</span></span>
       </button>`;
     }
@@ -1142,7 +1142,7 @@
       if (flight) html += flightCard(flight);
       const label = selectedDay === 'unscheduled' ? '已收藏地点' : '当天安排';
       html += `<div class="section-label"><span>${label}</span><span>${list.length} 个地点</span></div>`;
-      html += list.length ? list.map((p, i) => placeRow(p, i, list.length)).join('') : `<div class="empty">${selectedDay === 'unscheduled' ? '还没有待安排的地点。点击地图任意位置开始收集。' : '这一天还没有具体安排。可以点地图放置地点，或先去“未排期”整理巡礼想法。'}</div>`;
+      html += list.length ? list.map((p, i) => placeRow(p, i, list.length)).join('') : `<div class="empty">${selectedDay === 'unscheduled' ? '暂无收藏。点击地图添加地点。' : '暂无安排。添加地点，或从“未排期”选择。'}</div>`;
       if (selectedDay === '2027-02-17') html += `<div class="empty" style="text-align:left"><strong>转场提醒</strong><br>京都退房 → 前往 KIX T2 → MM309 → NRT T1 → 驹込附近住宿。地面交通时间待补。</div>`;
       if (selectedDay === '2027-02-12') html += `<div class="empty" style="text-align:left"><strong>晚间抵达</strong><br>20:55 抵达 KIX T1，之后前往大国町 Airbnb。导航使用完整住宿地址；交通时间待补。</div>`;
       if (selectedDay === '2027-02-22') html += `<div class="empty" style="text-align:left"><strong>返程提醒</strong><br>从驹込附近前往 NRT T2；建议预留机场交通和国际航班值机时间。</div>`;
@@ -1230,7 +1230,7 @@
       const [title, subtitle] = dayTitle();
       document.getElementById('dayTitle').textContent = title;
       document.getElementById('daySubtitle').textContent = subtitle;
-      document.getElementById('dayLabel').textContent = selectedDay === 'unscheduled' ? 'TRIP COLLECTION · 2027' : `DAY ${dayNumber(selectedDay)} · ${dateLabel(selectedDay, true)} · 2027`;
+      document.getElementById('dayLabel').textContent = selectedDay === 'unscheduled' ? '未排期' : dateLabel(selectedDay, true);
       renderContent(); renderMap();
       weatherPanel?.render();
       updateMobileSheetSummary();
@@ -1248,7 +1248,7 @@
     const dateSelect = document.getElementById('dateSelect');
     const endDateSelect = document.getElementById('endDateSelect');
     function updateEditorLocation() {
-      document.getElementById('coordCaption').textContent = editorCoords ? `地图位置 · ${editorCoords.lat.toFixed(5)}, ${editorCoords.lng.toFixed(5)}` : '尚未选择位置，请搜索后选择一个候选，或关闭窗口在主地图上点选。';
+      document.getElementById('coordCaption').textContent = editorCoords ? `地图位置 · ${editorCoords.lat.toFixed(5)}, ${editorCoords.lng.toFixed(5)}` : '搜索并选择地点，或在地图上点选。';
       const details = document.getElementById('editorMapDetails');
       details.hidden = !editorCoords;
       if (editorCoords) details.href = googlePlaceUrl({ ...editorCoords, address: form.elements.address.value });
@@ -1363,8 +1363,8 @@
       selectedDay = data.date || 'unscheduled'; activeFilter = 'all'; saveState(); dialog.close(); renderAll(); showToast(editingId ? '地点已更新' : '地点已添加');
     });
     map?.on('click', e => {
-      if (document.querySelector('.explore-tools').classList.contains('tools-open') || document.querySelector('.map-card').classList.contains('map-settings-open')) {
-        setMobileToolsOpen(false); setMobileMapOptionsOpen(false); return;
+      if (document.querySelector('.search-menu[open]') || document.querySelector('.map-card').classList.contains('map-settings-open')) {
+        closeSearchMenus(); setMobileMapOptionsOpen(false); return;
       }
       if (e.originalEvent.target.closest('.pin-button, .maplibregl-popup')) return;
       const coords = { lat: e.lngLat.lat, lng: e.lngLat.lng };
@@ -1426,10 +1426,8 @@
         setMobileSheetState(target);
       } else if (cancelled) setMobileSheetState(drag.startState);
     }
-    function setMobileToolsOpen(open) {
-      document.querySelector('.explore-tools').classList.toggle('tools-open', open);
-      document.getElementById('mobileToolsBtn').setAttribute('aria-expanded', String(open));
-      if (open) setMobileMapOptionsOpen(false);
+    function closeSearchMenus() {
+      document.querySelectorAll('.search-menu[open]').forEach(menu => { menu.open = false; });
     }
     function setMobileMapOptionsOpen(open) {
       document.querySelector('.map-card').classList.toggle('map-settings-open', open);
@@ -1470,23 +1468,29 @@
       selectedDay = event.target.value || 'unscheduled'; activeFilter = 'all'; renderAll();
       document.querySelector('.content-scroll').scrollTop = 0;
     });
-    document.getElementById('mobileToolsBtn').addEventListener('click', () => setMobileToolsOpen(!document.querySelector('.explore-tools').classList.contains('tools-open')));
+    document.querySelectorAll('.search-menu').forEach(menu => menu.addEventListener('toggle', () => {
+      if (menu.open) setMobileMapOptionsOpen(false);
+    }));
     document.getElementById('mobileMapOptionsBtn').addEventListener('click', () => {
       const open = !document.querySelector('.map-card').classList.contains('map-settings-open');
-      setMobileToolsOpen(false); setMobileMapOptionsOpen(open);
+      closeSearchMenus(); setMobileMapOptionsOpen(open);
     });
     ['maiBtn', 'maiMapBtn', 'pilgrimBtn', 'pilgrimMapBtn'].forEach(id => document.getElementById(id).addEventListener('click', () => {
-      setMobileToolsOpen(false); setMobileSheetOpen(true);
+      closeSearchMenus(); setMobileSheetOpen(true);
       document.querySelector('.content-scroll').scrollTop = 0;
     }));
     ['closeMaiBtn', 'closePilgrimBtn'].forEach(id => document.getElementById(id).addEventListener('click', () => setMobileSheetOpen(false)));
-    document.getElementById('datebar').addEventListener('click', () => { setMobileToolsOpen(false); setMobileMapOptionsOpen(false); });
+    document.getElementById('datebar').addEventListener('click', () => { closeSearchMenus(); setMobileMapOptionsOpen(false); });
     document.addEventListener('click', event => {
-      if (!event.target.closest('.explore-tools')) setMobileToolsOpen(false);
+      if (!event.target.closest('.search-menu')) closeSearchMenus();
       if (!event.target.closest('.map-options, #mobileMapOptionsBtn')) setMobileMapOptionsOpen(false);
     });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !dialog.open && !document.getElementById('weatherDialog').open && !document.getElementById('flightDialog').open) { setMobileToolsOpen(false); setMobileMapOptionsOpen(false); setMobileSheetOpen(false); }
+      if (event.key === 'Escape' && !dialog.open && !document.getElementById('weatherDialog').open && !document.getElementById('flightDialog').open) {
+        const menu = document.querySelector('.search-menu[open]');
+        if (menu) { closeSearchMenus(); menu.querySelector('summary').focus(); return; }
+        setMobileMapOptionsOpen(false); setMobileSheetOpen(false);
+      }
     });
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => map?.resize()).observe(document.querySelector('.map-card'));
     if (window.JP_WEATHER && window.JP_WEATHER_UI) {
@@ -1523,7 +1527,7 @@
       });
       weatherDate.addEventListener('change', () => { weatherPanel.render(); weatherContent.scrollTop = 0; });
       document.getElementById('weatherBtn').addEventListener('click', () => {
-        setMobileToolsOpen(false); setMobileMapOptionsOpen(false);
+        closeSearchMenus(); setMobileMapOptionsOpen(false);
         weatherDate.value = DAYS.includes(selectedDay) ? selectedDay : DAYS[0];
         weatherDialog.showModal(); selectWeatherView(weatherView, true);
       });

@@ -1,5 +1,7 @@
 # 地图来源
 
+页面氛围素材 `assets/japan-atmosphere.webp`（樱花、富士山、青海波）与 `assets/pilgrimage-characters.webp`（《孤独摇滚！》后藤一里、《吹响吧！上低音号》黄前久美子）由本次 imagegen 生成，非官方立绘或动画截图。角色及作品相关权利归各自权利人；图片仅作个人旅行页面的低透明度背景装饰。
+
 - 地点名称与地址搜索：[Photon](https://photon.komoot.io/)，[接口文档](https://github.com/komoot/photon/blob/master/docs/api-v1.md)，地点数据来自 [© OpenStreetMap contributors / ODbL](https://www.openstreetmap.org/copyright)。仅调用公开 `/api/`，限定日本境内，使用 `lang=default` 保留本地名称。界面保留 Photon 和 OpenStreetMap 署名，门牌号缺失时标注不完整，不把区域地址伪装成完整门牌地址。公共演示服务仅适用于合理低频请求，不保证可用性，见 [使用说明](https://github.com/komoot/photon#demo-server)。未调用 Google Places 或 Google Geocoding API。
 
 - 天气：[Open-Meteo](https://open-meteo.com/)，[Forecast API 文档](https://open-meteo.com/en/docs)，数据依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 提供。页面保留来源链接及读取时间。富士见参考分由本项目依据预报云量、地面能见度与降水自行计算，不是 Open-Meteo 官方见山概率；面板内说明估算方式与限制。免费接口用于当前非商业旅行原型。

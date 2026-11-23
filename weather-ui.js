@@ -20,7 +20,7 @@
       if (r.status !== 'available') return `<article class="weather-location"><strong>${escape(location.name)}</strong><p class="weather-muted">${pendingText(date)}</p></article>`;
       if (!daily) return `<article class="weather-location"><strong>${escape(location.name)}</strong><p class="weather-muted">${state.status === 'error' ? escape(state.error) : state.status === 'ready' ? '该日数据暂缺，请稍后刷新' : '正在获取天气…'}</p></article>`;
       const info = W.weatherCode(daily.code);
-      return `<article class="weather-location"><div class="weather-location-top"><strong>${escape(location.name)}</strong><span>${info.icon} ${info.text}</span></div>
+      return `<article class="weather-location"><div class="weather-location-top"><strong>${escape(location.name)}</strong><span>${info.text}</span></div>
         <div class="weather-temperature">${unit(daily.min, '°')} <span>/</span> ${unit(daily.max, '°C')}</div>
         <div class="weather-metrics"><span>降水概率 <b>${unit(daily.rain, '%')}</b></span><span>最大风速 <b>${unit(daily.wind, ' km/h')}</b></span></div>
         <p class="weather-meta">${!current(state) ? `<strong>旧数据 · ${escape(state.error || '正在更新')}</strong><br>` : ''}${timeLabel(state)}</p></article>`;
@@ -41,12 +41,9 @@
         state.status === 'ready' && !state.stale ? '该日白天三小时连续数据不足，暂不评分' : '正在读取云量、能见度与降水…';
       if (selected) message = `${shortDate(viewDate)} 较好时段 ${selected.start}–${selected.end} · 日本时间`;
       return `<section class="fuji-panel" aria-labelledby="fujiTitle">
-        <div class="weather-heading"><div><p class="weather-kicker">东京段 · 看山择日</p><h3 id="fujiTitle">富士見予報</h3></div><span class="fuji-badge">${selected ? labels[selected.grade] : '等待预报'}</span></div>
+        <div class="weather-heading"><div><h3 id="fujiTitle">富士見予報</h3></div><span class="fuji-badge">${selected ? labels[selected.grade] : '等待预报'}</span></div>
         <label class="fuji-location">观景方向<select data-fuji-spot aria-label="富士山观景地点">${W.FUJI_SPOTS.map(item => `<option value="${item.id}" ${spot.id === item.id ? 'selected' : ''}>${item.name}</option>`).join('')}</select></label>
-        <div class="fuji-scene ${selected ? selected.grade : 'waiting'}">
-          <svg viewBox="0 0 360 116" aria-hidden="true"><circle cx="282" cy="28" r="15" class="fuji-sun"/><path d="M0 108 76 77 117 94 178 18 249 96 288 79 360 108V116H0Z" fill="#779b9e"/><path d="m150 53 28-35 35 39-20-7-12 8-15-10Z" fill="#f6fbff"/><path d="M0 109q70-18 135 0t135 0 90 0V116H0Z" fill="#aac6ca"/><g class="fuji-clouds" fill="#fff" opacity=".9"><ellipse cx="169" cy="57" rx="61" ry="12"/><ellipse cx="151" cy="49" rx="27" ry="14"/><ellipse cx="191" cy="51" rx="32" ry="13"/></g></svg>
-          <div class="fuji-scene-caption">${selected ? `<strong>${selected.score}<small> / 100 参考分</small></strong><span>${labels[selected.grade]} · ${escape(spot.name)}方向</span>` : '<strong>等天气近一点</strong><span>逐日比较，留出弹性</span>'}</div>
-        </div>
+        ${selected ? `<div class="fuji-scene"><div class="fuji-scene-caption"><strong>${selected.score}<small> / 100 参考分</small></strong><span>${labels[selected.grade]} · ${escape(spot.name)}方向</span></div></div>` : ''}
         <p class="fuji-recommendation">${recommendation}</p>
         <p class="weather-meta">${best ? `已覆盖 ${available.length}/4 个候选日 · ${range(best.date).text}` : '未来 16 天（含今天） · 远期仅看趋势'} · 2/17 转场、2/22 返程不参与推荐</p>
         <div class="fuji-days" role="group" aria-label="富士山候选日期">${values.map(({ date, result }) => `<button type="button" class="fuji-day ${result?.grade || 'waiting'} ${date === viewDate ? 'selected' : ''}" data-fuji-date="${date}" aria-pressed="${date === viewDate}"><strong>${shortDate(date)}</strong><span>${result ? labels[result.grade] : range(date).status === 'available' ? state.status === 'error' ? '加载失败' : state.status === 'ready' ? '数据不足' : '加载中' : range(date).text}</span><b>${result ? `${result.score} 分` : '—'}</b><i class="fuji-meter"><i style="width:${result ? result.score : 0}%"></i></i></button>`).join('')}</div>

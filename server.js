@@ -22,6 +22,9 @@ const server = http.createServer((req, res) => {
   }
   publicFiles['/map-color-style.js'] = ['map-color-style.js', 'text/javascript; charset=utf-8'];
   publicFiles['/assets/maimai.ico'] = ['assets/maimai.ico', 'image/x-icon'];
+  for (const file of ['japan-atmosphere.webp', 'pilgrimage-characters.webp']) {
+    publicFiles['/assets/' + file] = ['assets/' + file, 'image/webp'];
+  }
   const file = publicFiles[pathname];
   if (!file || !Object.hasOwn(publicFiles, pathname)) {
     res.writeHead(404); res.end('Not found'); return;
