@@ -477,10 +477,10 @@
     <div class="cloud-heading"><h2 id="cloudTitle">行程同步</h2><button type="button" class="close-btn" id="closeCloudBtn" aria-label="关闭同步">×</button></div>
     <p class="cloud-status" id="cloudStatus" role="status">未登录 · 仅保存在本机</p>
     <form id="cloudLoginForm">
-      <label>账号或邮箱<input name="account" autocomplete="username" required maxlength="254"></label>
+      <label>邮箱<input name="account" type="email" autocomplete="username" required maxlength="254"></label>
       <label>密码<input name="password" type="password" autocomplete="current-password" required maxlength="256"></label>
       <div class="cloud-actions"><button class="button primary" type="submit">登录</button></div>
-      <p>使用 CloudBase 中创建的个人账号，电脑和手机登录同一个账号。</p>
+      <p>电脑和手机使用同一个邮箱账号登录。</p>
     </form>
     <div id="cloudSignedIn" hidden><div class="cloud-actions"><button type="button" class="button" id="cloudRefreshBtn" data-cloud-action>立即同步</button><button type="button" class="button secondary" id="cloudLogoutBtn" data-cloud-action>退出登录</button></div></div>
     <div id="cloudChoices" hidden><p>请选择要保留的行程。替换前会在当前浏览器自动保存备份。</p><div class="cloud-actions"><button type="button" class="button" id="cloudUseRemoteBtn" data-cloud-action>使用云端行程</button><button type="button" class="button secondary" id="cloudUseLocalBtn" data-cloud-action>上传本机行程</button></div></div>
@@ -488,7 +488,7 @@
     <input type="file" id="cloudImportFile" accept="application/json,.json" hidden>
     <details id="cloudBackups"><summary>替换前的自动备份</summary><label>选择备份<select id="cloudBackupSelect"></select></label><div class="cloud-actions"><button type="button" class="button secondary" id="cloudRestoreBtn">恢复到本机</button></div></details>
   </dialog>
-  <script src="cloudbase-config.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="cloud-sync.js"></script>
   <script src="https://unpkg.com/maplibre-gl@5.6.1/dist/maplibre-gl.js" crossorigin=""></script>
   <script src="map-style.js"></script>

@@ -1,5 +1,15 @@
 # CloudBase PostgreSQL 接入步骤
 
+本方案已归档：用户决定改试 Supabase。当前接入步骤见 [supabase-setup.md](supabase-setup.md)，不要继续用本文初始化新的 Supabase 项目。
+
+## 当前阻塞：免费环境无法添加线上来源
+
+用户已在控制台确认：添加跨域域名需要升级套餐。随后从真实 `https://xzqxh.github.io` 页面执行 SDK 的 `jpmap_load` 匿名只读探测，浏览器明确报告预检响应缺少 `Access-Control-Allow-Origin`，请求以 `Failed to fetch` 失败。
+
+因此，当前免费环境尚不能支持 GitHub Pages 上的同步功能；不要将下面的设置步骤理解为免费版一定可完成。此前 localhost 探测成功，只证明默认获准的本地来源能访问项目，不代表线上来源已获准。账号隔离和版本冲突的本地测试仍然有效，但不能替代线上连接验证。
+
+所有者尚未选择付费或迁移。暂不升级套餐、不迁移后端、不删除已有环境与数据。可比较 CloudBase 的实际付费报价与 Supabase 免费版（仍需验证大陆网络，并接受低活跃项目可能暂停）。
+
 已选环境：`jpmap-d2gsyqixu8b7f8714`，上海，PostgreSQL 模式。
 
 浏览器配置位于 `cloudbase-config.js`，仅含环境 ID 和匿名角色的 Publishable Key；任何管理员 API Key、SecretId、SecretKey、数据库密码均不应写入项目。

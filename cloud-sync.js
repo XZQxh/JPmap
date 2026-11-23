@@ -13,14 +13,15 @@
     if (JSON.stringify(payload).length > 1000000) throw new Error('行程过大，请先导出备份');
     return payload;
   }
-  function createController({ transport, storage, getSnapshot, applySnapshot, onState = () => {} }) {
+  function createController({ transport, storage, getSnapshot, applySnapshot, onState = () => {}, scope = 'test' }) {
+    const metaKey = `${META_KEY}:${scope}`;
     let meta;
-    try { meta = JSON.parse(storage.getItem(META_KEY)); } catch (_) {}
+    try { meta = JSON.parse(storage.getItem(metaKey)); } catch (_) {}
     if (!meta || !Number.isSafeInteger(meta.version) || typeof meta.owner !== 'string') meta = { owner: '', version: 0, dirty: false };
     let owner = '', ready = false, conflict = false, busy = false, generation = 0, timer;
     let status = { text: '未登录 · 仅保存在本机', signedIn: false, choose: false, busy: false };
     function emit(text) { status = { text, signedIn: !!owner, choose: conflict, busy }; onState(status); }
-    function persist() { storage.setItem(META_KEY, JSON.stringify(meta)); }
+    function persist() { storage.setItem(metaKey, JSON.stringify(meta)); }
     function backup(payload = getSnapshot()) {
       // Back up the visible itinerary before replacing it, including pending local edits.
       const key = `jpmap-backup-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -125,18 +126,18 @@
     return { changed, connect, sync, chooseCloud, chooseLocal, disconnect, state: () => ({ ...status }) };
   }
   async function loadSdk(config) {
-    if (root.cloudbase) return root.cloudbase;
+    if (root.supabase) return root.supabase;
     await new Promise((resolve, reject) => {
       const script = document.createElement('script'); script.src = config.sdkUrl;
-      script.onload = resolve; script.onerror = () => { script.remove(); reject(new Error('CloudBase 登录组件未能加载，请检查网络')); };
+      script.onload = resolve; script.onerror = () => { script.remove(); reject(new Error('登录组件未能加载，请刷新网页')); };
       document.head.append(script);
     });
-    return root.cloudbase;
+    return root.supabase;
   }
   function mount({ getSnapshot, applySnapshot }) {
     const button = document.getElementById('cloudBtn'), dialog = document.getElementById('cloudDialog');
     const message = document.getElementById('cloudStatus'), form = document.getElementById('cloudLoginForm');
-    const config = root.JP_CLOUDBASE_CONFIG;
+    const config = root.JP_SUPABASE_CONFIG;
     let app, auth, db, initialization;
     function show(state) {
       message.textContent = state.text;
@@ -158,7 +159,7 @@
       const row = Array.isArray(result.data) ? result.data[0] : result.data;
       return row || null;
     }
-    const controller = createController({ storage: localStorage, getSnapshot, applySnapshot, onState: show,
+    const controller = createController({ storage: localStorage, getSnapshot, applySnapshot, onState: show, scope: config?.url || 'supabase-unconfigured',
       transport: { load: () => rpc('jpmap_load', {}), save: (payload, version) => rpc('jpmap_save', { p_payload: payload, p_expected_version: version }) } });
     root.JP_SYNC_CHANGE = () => controller.changed();
     async function restore() {
@@ -171,13 +172,17 @@
     async function initialize() {
       if (initialization) return initialization;
       initialization = (async () => {
-        if (!config?.publishableKey) throw new Error('同步尚未配置完成，请先完成 CloudBase 设置');
-        const claims = JSON.parse(atob(config.publishableKey.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-        if (claims.role !== 'anon' || claims.aud !== config.env) throw new Error('浏览器只能使用本环境的 Publishable Key');
+        if (!config?.url || !config?.publishableKey) throw new Error('Supabase 项目尚未配置；行程仍保存在本机');
+        if (new URL(config.url).protocol !== 'https:') throw new Error('Supabase 项目地址必须使用 HTTPS');
+        if (!config.publishableKey.startsWith('sb_publishable_')) {
+          let claims;
+          try { claims = JSON.parse(atob(config.publishableKey.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); } catch (_) {}
+          if (claims?.role !== 'anon') throw new Error('浏览器只能使用 Publishable key 或 anon key');
+        }
         const sdk = await loadSdk(config);
-        app = sdk.init({ env: config.env, region: config.region, accessKey: config.publishableKey, auth: { detectSessionInUrl: true } });
+        app = sdk.createClient(config.url, config.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
         auth = app.auth;
-        db = app.rdb();
+        db = app;
         auth.onAuthStateChange((event) => {
           if (event === 'SIGNED_OUT') controller.disconnect();
           else if (event === 'SIGNED_IN') setTimeout(() => restore().catch(error => { message.textContent = error.message; }), 0);
@@ -208,7 +213,7 @@
       const account = form.elements.account.value.trim(), password = form.elements.password.value;
       form.querySelector('button').disabled = true;
       action(async () => {
-        const result = await auth.signInWithPassword(account.includes('@') ? { email: account, password } : { username: account, password });
+        const result = await auth.signInWithPassword({ email: account, password });
         if (result.error) throw result.error;
         form.elements.password.value = '';
         const session = await auth.getSession();

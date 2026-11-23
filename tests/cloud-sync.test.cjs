@@ -2,22 +2,25 @@ const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { PGlite } = require('@electric-sql/pglite');
 const { createController } = require('../cloud-sync.js');
 let pg;
 before(async () => {
   pg = new PGlite();
   await pg.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE SCHEMA auth;
-    CREATE FUNCTION auth.uid() RETURNS text LANGUAGE sql STABLE AS $$ SELECT current_setting('request.jwt.claims', true)::jsonb->>'sub' $$;
+    CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT (current_setting('request.jwt.claims', true)::jsonb->>'sub')::uuid $$;
     CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql STABLE AS $$ SELECT current_setting('request.jwt.claims', true)::jsonb->>'role' $$;
     GRANT USAGE ON SCHEMA auth TO anon, authenticated;
     GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA auth TO anon, authenticated;`);
-  await pg.exec(fs.readFileSync(path.join(__dirname, '../cloudbase/setup.sql'), 'utf8'));
+  await pg.exec(fs.readFileSync(path.join(__dirname, '../supabase/setup.sql'), 'utf8'));
 });
 after(async () => { await pg?.close(); });
 function asUser(id, sql, params = [], role = 'authenticated') {
   return pg.transaction(async tx => {
-    await tx.query("SELECT set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: id, role })]);
+    const hex = crypto.createHash('sha256').update(id).digest('hex').slice(0, 32);
+    const uid = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+    await tx.query("SELECT set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: uid, role })]);
     await tx.exec(`SET LOCAL ROLE ${role}`);
     return (await tx.query(sql, params)).rows;
   });
