@@ -214,6 +214,12 @@
     .attribution-hint { font-size: 10px; }
     .toast { position: fixed; z-index: 1500; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .2s ease; background: #263a31; color: white; border-radius: 999px; padding: 10px 15px; font-size: 12px; box-shadow: var(--shadow); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .app-launch-notice { position: fixed; z-index: 1600; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 14px; width: max-content; max-width: calc(100vw - 24px); padding: 12px 16px; border-radius: 14px; background: #263a31; color: white; box-shadow: var(--shadow); font-size: 14px; }
+    .app-launch-notice a { color: white; text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; }
+    .app-launch-notice button { color: white; background: transparent; border: 1px solid #ffffff60; border-radius: 8px; font: inherit; padding: 6px 10px; cursor: pointer; }
+    .wechat-notice { width: min(420px, calc(100vw - 24px)); justify-content: flex-start; max-height: calc(100dvh - 48px); overflow-y: auto; }
+    .wechat-notice strong, .wechat-notice p, .wechat-copy-status { flex-basis: 100%; margin: 0; line-height: 1.6; }
+    .wechat-notice textarea { width: 100%; flex-basis: 100%; min-height: 64px; padding: 10px; border-radius: 8px; border: 1px solid #ffffff60; background: #fff; color: #263a31; font-size: 16px; resize: none; }
     .mobile-only, .sheet-toggle, .sheet-date-picker { display: none; }
     .search-groups, .side-details { display: contents; }
     .map-top-actions { display: flex; gap: 6px; pointer-events: auto; }
@@ -408,12 +414,15 @@
           <label class="field"><span>安排日期</span><select name="date" id="dateSelect"></select></label>
         </div>
         <label class="field" id="endDateField" hidden><span>住宿结束日期</span><select name="endDate" id="endDateSelect"></select></label>
-        <div id="bookingFields" hidden>
-          <label class="field"><span>预订平台</span><select name="bookingProvider"><option value="">未指定</option><option value="Airbnb">Airbnb</option><option value="携程">携程</option><option value="其他">其他</option></select></label>
-          <label class="field"><span>房源 / 订单 / 平台页面链接（可选）</span><input name="bookingUrl" type="url" maxlength="2048" placeholder="粘贴 Airbnb 行程或携程页面链接"></label>
+        <label class="field" id="mealField" hidden><span>用餐安排</span><select name="meal"><option value="">未指定</option><option value="lunch">午餐</option><option value="dinner">晚餐</option></select></label>
+        <div id="bookingFields">
+          <label class="field"><span>关联平台（可选）</span><select name="bookingProvider"><option value="">自动识别 / 未指定</option><option value="Airbnb">Airbnb</option><option value="携程">携程</option><option value="Agoda">Agoda</option><option value="Klook">Klook</option><option value="HopeGoo">HopeGoo</option><option value="Tabelog">Tabelog · 微信小程序</option><option value="其他">其他</option></select></label>
+          <label class="field"><span>房源 / 餐厅 / 订单 / 活动链接（可选）</span><input name="bookingUrl" type="url" maxlength="2048" placeholder="粘贴平台分享的完整网页链接" aria-describedby="bookingLinkHint"></label>
+          <p class="nav-note" id="bookingLinkHint">粘贴链接后自动识别平台；手机优先打开 App。</p>
+          <a class="place-nav app-link" id="editorBookingLink" target="_blank" rel="noopener noreferrer" hidden></a>
         </div>
         <label class="field"><span>备注</span><textarea name="note" maxlength="500" placeholder="地址、营业时间、巡礼出处等"></textarea></label>
-        <a class="nav-link app-link" id="editorMapDetails" target="_blank" rel="noopener noreferrer" hidden><img class="app-icon" src="assets/google-maps.png" alt="" aria-hidden="true"><span>在 Google 地图查看</span></a>
+        <a class="nav-link app-link" id="editorMapDetails" data-app-link="google" target="_blank" rel="noopener noreferrer" hidden><img class="app-icon" src="assets/google-maps.png" alt="" aria-hidden="true"><span>在 Google 地图查看</span></a>
         <div class="dialog-actions"><button class="button danger" id="deleteBtn" type="button" hidden>删除地点</button><span style="flex:1"></span><button class="button secondary" type="button" id="cancelBtn">取消</button><button class="button primary" type="submit">保存地点</button></div>
       </div>
     </form>
@@ -429,13 +438,16 @@
   <script src="weather-ui.js"></script>
   <script src="place-search.js"></script>
   <script src="place-search-ui.js"></script>
+  <script src="app-links.js?v=20261123-wechat-3"></script>
   <script>
+    window.JP_APP_LINKS?.bind(document, window);
     const DAYS = Array.from({ length: 11 }, (_, i) => {
       const d = new Date(Date.UTC(2027, 1, 12 + i));
       return d.toISOString().slice(0, 10);
     });
     const CATS = {
       stay: { label: '住宿', icon: '⌂', color: '#557565', soft: '#e8f0eb' },
+      food: { label: '餐饮', icon: '<img class="app-icon" src="assets/dining.svg" alt="" aria-hidden="true">', color: '#b56632', soft: '#fff0e5' },
       sight: { label: '景点', icon: '✿', color: '#d17b5e', soft: '#fbede7' },
       anime: { label: '圣地巡礼', icon: '✦', color: '#7e69a5', soft: '#f0ecf7' },
       shop: { label: '购物', icon: '◇', color: '#c38a39', soft: '#f7f0df' },
@@ -908,7 +920,7 @@
     });
     renderWorkSettings(); setPilgrimBusy(false);
 
-    // Maps URLs open the Google Maps app (when available) or the web route planner.
+    // Maps URLs open normally on desktop; app-links.js handles mobile taps without a web redirect.
     // Transit links select public transport and let the traveller choose a departure time there.
     function googleDirections(destination, origin = null) {
       const point = value => googlePlaceQuery(value);
@@ -920,10 +932,10 @@
       return url.href;
     }
     function navLink(label, destination, origin = null, className = 'nav-link') {
-      return `<a class="${className} app-link" href="${escapeHtml(googleDirections(destination, origin))}" target="_blank" rel="noopener noreferrer">${appIcon('google')}<span>${escapeHtml(label)}</span></a>`;
+      return `<a class="${className} app-link" data-app-link="google" href="${escapeHtml(googleDirections(destination, origin))}" target="_blank" rel="noopener noreferrer">${appIcon('google')}<span>${escapeHtml(label)}</span></a>`;
     }
     function appIcon(app) {
-      const file = { google: 'google-maps.png', Airbnb: 'airbnb.ico', '携程': 'ctrip.ico', maimai: 'maimai.ico' }[app];
+      const file = { google: 'google-maps.png', Airbnb: 'airbnb.ico', '携程': 'ctrip.ico', Agoda: 'agoda.png', Klook: 'klook.png', HopeGoo: 'hopegoo.jpg', Tabelog: 'tabelog.ico', maimai: 'maimai.ico' }[app];
       return file ? `<img class="app-icon" src="assets/${file}" alt="" aria-hidden="true">` : '';
     }
     function googlePlaceUrl(place) {
@@ -938,20 +950,33 @@
       return place.address?.trim() || `${place.lat},${place.lng}`;
     }
     function placeDetailsLink(place, className = 'place-nav') {
-      return `<a class="${className} app-link" href="${escapeHtml(googlePlaceUrl(place))}" target="_blank" rel="noopener noreferrer" title="查看地点信息；可在 Google 地图中选择路线">${appIcon('google')}<span>在 Google 地图查看</span></a>`;
+      return `<a class="${className} app-link" data-app-link="google" href="${escapeHtml(googlePlaceUrl(place))}" target="_blank" rel="noopener noreferrer" title="查看地点信息；可在 Google 地图中选择路线">${appIcon('google')}<span>在 Google 地图查看</span></a>`;
     }
     function safeBookingUrl(value) {
       try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : ''; }
       catch (_) { return ''; }
     }
     function stayDetails(place) {
-      if (place.category !== 'stay') return '';
       const bookingUrl = safeBookingUrl(place.bookingUrl);
-      const bookingLabel = place.bookingProvider === 'Airbnb' ? '查看 Airbnb 行程' : place.bookingProvider === '携程' ? '打开携程' : '打开预订页面';
-      return `<div class="stay-details">${place.bookingProvider ? `<span class="booking-tag">${escapeHtml(place.bookingProvider)} 预订</span>` : ''}
-        ${place.address ? `<p>${escapeHtml(place.address)}</p>` : ''}
-        ${bookingUrl ? `<a class="place-nav app-link" href="${escapeHtml(bookingUrl)}" target="_blank" rel="noopener noreferrer">${appIcon(place.bookingProvider)}<span>${bookingLabel}</span></a>` : '<p>预订页面链接待补，可在编辑中粘贴。</p>'}
-        ${place.locationAccuracy === 'area' ? '<p>地图标记为区域示意；Google 地图使用完整地址。</p>' : place.locationAccuracy === 'user-provided' ? '<p>按你提供的坐标标注；Google 地图使用同一坐标。</p>' : ''}</div>`;
+      const stay = place.category === 'stay';
+      if (!stay && !bookingUrl) return '';
+      return `<div class="stay-details">${place.bookingProvider ? `<span class="booking-tag">${escapeHtml(place.bookingProvider)}${stay ? ' 预订' : ''}</span>` : ''}
+        ${stay && place.address ? `<p>${escapeHtml(place.address)}</p>` : ''}
+        ${bookingUrl ? bookingLink(place) : '<p>预订页面链接待补，可在编辑中粘贴。</p>'}
+        ${stay && place.locationAccuracy === 'area' ? '<p>地图标记为区域示意；Google 地图使用完整地址。</p>' : stay && place.locationAccuracy === 'user-provided' ? '<p>按你提供的坐标标注；Google 地图使用同一坐标。</p>' : ''}</div>`;
+    }
+    function bookingLink(place) {
+      const url = safeBookingUrl(place.bookingUrl);
+      if (!url) return '';
+      const api = typeof window !== 'undefined' ? window.JP_APP_LINKS : null;
+      const selectedProvider = place.bookingProvider || '';
+      const provider = !selectedProvider || selectedProvider === '其他' ? api?.detectProvider(url) || selectedProvider : selectedProvider;
+      const launch = api && typeof navigator !== 'undefined' ? api.presetLaunch(provider, url, navigator) : null;
+      const label = launch?.kind === 'wechat-code' ? 'Tabelog 微信小程序' : launch?.home ? `打开 ${provider} App 首页` : provider === 'Airbnb' ? '查看 Airbnb 行程' : provider === '携程' ? '打开携程' : provider && provider !== '其他' ? `在 ${provider} 查看` : '打开关联页面';
+      return `<a class="place-nav app-link" data-app-link="${escapeHtml(provider)}" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${appIcon(provider)}<span>${escapeHtml(label)}</span></a>`;
+    }
+    function mealLabel(place) {
+      return place.category === 'food' ? ({ lunch: '午餐', dinner: '晚餐' }[place.meal] || '') : '';
     }
     function airportQuery(code, terminal) {
       return `${code === 'KIX' ? '関西国際空港' : code === 'NRT' ? '成田国際空港' : '上海浦東国際空港'} 第${terminal.slice(1)}ターミナル`;
@@ -1004,7 +1029,7 @@
     function renderFilters() {
       const items = [['all', '全部'], ...Object.entries(CATS).filter(([key]) => key !== 'flight').map(([key, c]) => [key, c.label])];
       const node = document.getElementById('filters');
-      node.innerHTML = items.map(([key, label]) => `<button type="button" class="filter-chip ${activeFilter === key ? 'active' : ''}" data-filter="${key}">${key === 'maimai' ? CATS.maimai.icon : ''}${label}</button>`).join('');
+      node.innerHTML = items.map(([key, label]) => `<button type="button" class="filter-chip ${activeFilter === key ? 'active' : ''}" data-filter="${key}">${['maimai', 'food'].includes(key) ? CATS[key].icon : ''}${label}</button>`).join('');
       node.querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; renderAll(); }));
     }
     function dayTitle() {
@@ -1031,7 +1056,7 @@
       const dateText = !place.date ? '未排期' : (place.endDate && place.endDate !== place.date ? `${dateLabel(place.date)}–${dateLabel(place.endDate)}` : dateLabel(place.date));
       return `<div class="place-row" style="--place-soft:${cat.soft}">
         <div class="place-icon">${cat.icon}</div>
-        <div><button type="button" class="place-open" data-open="${escapeHtml(place.id)}"><span class="place-main"><strong>${escapeHtml(place.name)}</strong><span>${cat.label} · ${dateText}${place.workName ? ' · ' + escapeHtml(place.workName) : ''}</span></span></button>${stayDetails(place)}${placeDetailsLink(place)}</div>
+        <div><button type="button" class="place-open" data-open="${escapeHtml(place.id)}"><span class="place-main"><strong>${escapeHtml(place.name)}</strong><span>${cat.label}${mealLabel(place) ? ' · ' + mealLabel(place) : ''} · ${dateText}${place.workName ? ' · ' + escapeHtml(place.workName) : ''}</span></span></button>${stayDetails(place)}${placeDetailsLink(place)}</div>
         <div class="place-actions"><button class="mini-btn" type="button" data-move="up" data-id="${escapeHtml(place.id)}" aria-label="向上移动" ${index === 0 ? 'disabled' : ''}>↑</button><button class="mini-btn" type="button" data-move="down" data-id="${escapeHtml(place.id)}" aria-label="向下移动" ${index === total - 1 ? 'disabled' : ''}>↓</button></div>
       </div>`;
     }
@@ -1064,7 +1089,7 @@
       if (!place || !Number.isFinite(Number(place.lat)) || !Number.isFinite(Number(place.lng))) return;
       const cat = CATS[place.category] || CATS.sight;
       const popupNode = document.createElement('div');
-      popupNode.innerHTML = `<div class="popup-title">${escapeHtml(place.name)}</div><div class="popup-sub">${cat.label}${place.workName ? ' · ' + escapeHtml(place.workName) : ''}${place.date ? ' · ' + dateLabel(place.date) : ' · 未排期'}</div>${stayDetails(place)}<div class="nav-links">${placeDetailsLink(place, 'nav-link')}${place.workId && pilgrimage?.workId(place.workId) ? `<a class="nav-link" href="${pilgrimage.subjectUrl(place.workId)}" target="_blank" rel="noopener noreferrer">Anitabi 来源</a>` : ''}<button type="button" class="button secondary">编辑地点</button></div>`;
+      popupNode.innerHTML = `<div class="popup-title">${escapeHtml(place.name)}</div><div class="popup-sub">${cat.label}${mealLabel(place) ? ' · ' + mealLabel(place) : ''}${place.workName ? ' · ' + escapeHtml(place.workName) : ''}${place.date ? ' · ' + dateLabel(place.date) : ' · 未排期'}</div>${stayDetails(place)}<div class="nav-links">${placeDetailsLink(place, 'nav-link')}${place.workId && pilgrimage?.workId(place.workId) ? `<a class="nav-link" href="${pilgrimage.subjectUrl(place.workId)}" target="_blank" rel="noopener noreferrer">Anitabi 来源</a>` : ''}<button type="button" class="button secondary">编辑地点</button></div>`;
       popupNode.querySelector('button').addEventListener('click', () => openEditor(place));
       const popup = new maplibregl.Popup({ offset: 30 }).setDOMContent(popupNode);
       const m = new maplibregl.Marker({ element: pinIcon(place.category, false, place.name, place.workColor), anchor: 'bottom' })
@@ -1097,7 +1122,7 @@
       const legendKeys = [...new Set(current.map(p => p.category))];
       if (flight) legendKeys.push('flight');
       const uniqueLegend = [...new Set(legendKeys)].filter(k => CATS[k]);
-      document.getElementById('mapLegend').innerHTML = uniqueLegend.map(key => `<span class="legend-item">${key === 'maimai' ? CATS.maimai.icon : `<i class="legend-dot" style="--dot:${CATS[key].color}"></i>`}${CATS[key].label}</span>`).join('') || '<span class="legend-item"><i class="legend-dot" style="--dot:#557565"></i>待添加地点</span>';
+      document.getElementById('mapLegend').innerHTML = uniqueLegend.map(key => `<span class="legend-item">${['maimai', 'food'].includes(key) ? CATS[key].icon : `<i class="legend-dot" style="--dot:${CATS[key].color}"></i>`}${CATS[key].label}</span>`).join('') || '<span class="legend-item"><i class="legend-dot" style="--dot:#557565"></i>待添加地点</span>';
       if (maiView.active) { updateMaiMapLabels(); drawFlightLine(); return; }
       if (pilgrimView.active) { updatePilgrimMapLabels(); drawFlightLine(); return; }
       if (selectedDay === 'unscheduled') {
@@ -1180,8 +1205,9 @@
       document.getElementById('deleteBtn').hidden = !place;
       form.elements.name.value = place?.name || '';
       form.elements.address.value = place?.address || '';
-      form.elements.bookingProvider.value = place?.bookingProvider || '';
+      form.elements.bookingProvider.value = place?.bookingProvider || window.JP_APP_LINKS?.detectProvider(place?.bookingUrl) || '';
       form.elements.bookingUrl.value = place?.bookingUrl || '';
+      form.elements.meal.value = place?.meal || '';
       form.elements.category.value = place?.category || 'sight';
       form.elements.date.value = place ? (place.date || '') : (selectedDay === 'unscheduled' ? '' : selectedDay);
       form.elements.note.value = place?.note || '';
@@ -1192,15 +1218,41 @@
       updateEditorLocation();
       placeSearch.reset(editorCoords);
       document.getElementById('endDateField').hidden = form.elements.category.value !== 'stay';
-      document.getElementById('bookingFields').hidden = form.elements.category.value !== 'stay';
+      document.getElementById('mealField').hidden = form.elements.category.value !== 'food';
+      updateBookingPreview();
       if (!dialog.open) dialog.showModal();
       setTimeout(() => form.elements.name.focus(), 80);
     }
     window.jpmapEdit = id => { const place = places.find(p => p.id === id); if (place) openEditor(place); };
     document.getElementById('categorySelect').addEventListener('change', e => {
       document.getElementById('endDateField').hidden = e.target.value !== 'stay';
-      document.getElementById('bookingFields').hidden = e.target.value !== 'stay';
+      document.getElementById('mealField').hidden = e.target.value !== 'food';
     });
+    function updateBookingPreview() {
+      const url = safeBookingUrl(form.elements.bookingUrl.value.trim());
+      const provider = form.elements.bookingProvider.value;
+      const link = document.getElementById('editorBookingLink');
+      link.hidden = !url;
+      if (url) {
+        const markup = bookingLink({ bookingUrl: url, bookingProvider: provider });
+        const template = document.createElement('template'); template.innerHTML = markup;
+        const source = template.content.firstElementChild;
+        link.href = url; link.dataset.appLink = provider; link.innerHTML = source.innerHTML;
+      }
+      const launch = url ? window.JP_APP_LINKS?.presetLaunch(provider, url, navigator) : null;
+      const detected = window.JP_APP_LINKS?.detectProvider(url);
+      document.getElementById('bookingLinkHint').textContent = launch?.kind === 'wechat-code' ? '手机点击后显示小程序口令，可复制并打开微信使用；保留原餐厅网页，暂不保证直达原餐厅。'
+        : launch?.home ? '此链接会先打开 App 首页；原房源或订单链接保留在“打开网页版”中。'
+        : provider && detected && provider !== detected ? `链接属于 ${detected}，请核对所选平台。`
+        : url && !launch && window.JP_APP_LINKS?.PRESETS[provider] && window.JP_APP_LINKS.mobilePlatform(navigator) ? '暂不能转换此分享短链或页面；请改用平台的完整页面链接，或打开网页版。'
+        : '粘贴链接后自动识别平台；手机优先打开 App。';
+    }
+    form.elements.bookingUrl.addEventListener('input', () => {
+      const detected = window.JP_APP_LINKS?.detectProvider(form.elements.bookingUrl.value.trim());
+      if (detected) form.elements.bookingProvider.value = detected;
+      updateBookingPreview();
+    });
+    form.elements.bookingProvider.addEventListener('change', updateBookingPreview);
     form.elements.address.addEventListener('input', () => {
       if (editorCoords) document.getElementById('editorMapDetails').href = googlePlaceUrl({ ...editorCoords, address: form.elements.address.value });
     });
@@ -1224,8 +1276,9 @@
         id: editingId || (crypto.randomUUID ? crypto.randomUUID() : 'place-' + Date.now()),
         name: form.elements.name.value.trim(), category: form.elements.category.value,
         address: form.elements.address.value.trim(),
-        bookingProvider: form.elements.bookingProvider.value,
+        bookingProvider: form.elements.bookingProvider.value || window.JP_APP_LINKS?.detectProvider(bookingUrl) || '',
         bookingUrl: safeBookingUrl(bookingUrl),
+        meal: form.elements.category.value === 'food' && ['lunch', 'dinner'].includes(form.elements.meal.value) ? form.elements.meal.value : '',
         date: form.elements.date.value || null,
         endDate: form.elements.category.value === 'stay' ? (endDateSelect.value || form.elements.date.value || null) : null,
         note: form.elements.note.value.trim(), lat: editorCoords.lat, lng: editorCoords.lng,

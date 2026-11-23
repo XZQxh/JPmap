@@ -24,7 +24,38 @@ GitHub Pages 使用 `main` 分支根目录发布，推送到 `main` 后自动更
 
 底图菜单可切换“彩色旅行地图”“淡色简洁地图”（原 Positron 定制样式）和国土地理院备用底图。当前彩色地图的数据仍来自 OpenStreetMap，并非 Microsoft / Zenrin，商铺名称、覆盖密度与 nearcade 截图会有所不同。Microsoft 官方地图服务需自有账户和鉴权配置，不能靠复制署名接入其数据。新样式由 `scripts/prepare-color-style.cjs` 从 OpenFreeMap 官方 Bright JSON 生成，保存在 `map-color-style.js`，无需用户申请地图 Key。
 
-航班卡片包含机场接驳的 Google 地图公交路线链接，保留航站楼；地点卡片、地图弹窗和编辑窗口统一只保留“在 Google 地图查看”，打开地点信息，不直接进入导航。Google 会按设备打开 App 或网页版。请在机场接驳路线中选择实际出发时间，链接不会自动锁定 2027 年旅行日期。已填写地址的地点优先使用完整地址，没有地址时使用坐标。
+航班卡片包含机场接驳的 Google 地图公交路线链接，保留航站楼；地点卡片、地图弹窗和编辑窗口统一只保留“在 Google 地图查看”，打开地点信息，不直接进入导航。手机点击时通过下述 App 唤起入口处理，电脑打开网页版。请在机场接驳路线中选择实际出发时间，链接不会自动锁定 2027 年旅行日期。已填写地址的地点优先使用完整地址，没有地址时使用坐标。
+
+手机端的 Google 地图、已保存的 Airbnb 行程和携程首页链接优先从当前旅行地图页面直接唤起 App，不先打开中转网页或新标签：安卓（包含 Edge）对 Google 地图、Airbnb 使用指定应用包的 Intent，iPhone / iPad 对 Google 地图使用 `comgooglemaps://`，Airbnb 使用 `airbnb:///` 并保留行程路径；携程首页使用 `ctrip://wireless`。成功交给 App 时，原地图文档与地图视角、所选日期、面板保持在浏览器中，切回浏览器可继续使用；系统若回收了后台标签，仍可能重新加载。浏览器可能要求确认“打开应用”。
+
+网页无法可靠检测 App 是否安装，也无法保证各版本 App 接受同一条行程路径。未打开或被浏览器拦截时，地图下方提供“打开网页版”和“关闭”；只有主动选择网页版才新开网页，不使用定时自动跳转，以免从 App 返回后再次被带走。复制链接、电脑点击和 Ctrl / Command 等修饰键点击仍使用原网页地址。自定义预订地址及不支持的平台维持原网页行为。Airbnb 的原生行程路径、携程首页和 Android Edge 的实际唤起/返回流程尚需对应手机与已安装 App 实测；自动检查只覆盖协议、参数、事件处理和手动回退，不宣称已在真机验证。
+
+协议参考：[Google iOS URL Scheme](https://developers.google.com/maps/documentation/urls/ios-urlscheme)、[Android Intent 链接](https://developer.chrome.com/docs/android/intents)、[Airbnb 官方网页](https://www.airbnb.com/)中的 `airbnb://` 应用元数据和[官方关联路径](https://www.airbnb.com/.well-known/apple-app-site-association)中的 `/trips/v1/*`。Airbnb 的 scheme 与行程路径组合是按公开信息实现的兼容尝试，尚未由官方文档确认该组合；[携程旧官方生成工具](https://pages.ctrip.com/commerce/promote/common/tools/converturl/index.html)展示 `ctrip://wireless` 协议，但该工具已标记弃用，当前 App 的兼容性需实测。新增 `app-links.js` 已加入本地服务及静态打包清单，使用旧本地服务时需重启；线上版本需发布这些修改后才生效。
+
+### 餐饮与平台链接预设
+
+添加或编辑地点时可以选择“餐饮”，再选择“午餐”或“晚餐”。行程卡片和地图弹窗显示用餐安排，地图图钉、图例及餐饮筛选按钮使用餐具图标。餐饮按所选日期加入计划，也可以先放到“未排期”；可手动上下移动排列。不预填餐厅、日期或预约信息，不影响原有住宿和个人备注。
+
+所有地点类别均可填写关联平台与网页链接，适合酒店、餐厅、门票或活动。预设 Airbnb、携程、Agoda、Klook、HopeGoo、Tabelog；粘贴已识别的官方完整链接会自动选择平台，编辑窗口提供带平台图标的查看按钮。卡片与地图弹窗使用相同入口，原网页链接始终保存。请只粘贴链接，不要连同分享文案一并粘贴。
+
+| 平台 | 安卓（含 Edge） | iPhone / iPad |
+| --- | --- | --- |
+| Agoda | 官方 smart link 含原生参数时直接使用该参数；普通酒店或共享行程网页通过 `agoda://home/` 打开 App 首页，原链接仍可手动查看 | 同安卓；按钮明确标示“App 首页”，不承诺直接进入共享行程 |
+| Klook | 完整活动页面提取活动编号，直接使用 `klook://activity/编号`；已展开的分享短链可使用已核实的别名记录 | 同安卓；不再通过 Universal Link 自动打开网页中转 |
+| HopeGoo | 使用官方下载页中的 `hopegoo://web/home` 打开 App 首页 | 同安卓；尚不承诺直达指定酒店或订单，原链接保留在手动网页入口 |
+| Tabelog | 显示“微信小程序”辅助面板：复制用户提供的小程序口令，再手动打开微信使用；保留原餐厅网页 | 同安卓；不再默认尝试国际版 App 协议，不声称可从浏览器一键直达小程序或原餐厅 |
+
+平台通过官方域名精确匹配。Agoda、Klook 直接使用原生协议，不再生成可能触发 Play 商店回退的指定包 Intent；没有定时跳网页或跳商店的备用动作。App 未安装、被系统拦截或版本不支持对应路由时，需手动选择“打开网页版”。Google 地图与 Airbnb 沿用原有入口。
+
+Tabelog 国际版 App 未能在用户手机上成功唤起，现将手机按钮切换为“微信小程序”。面板内的 `#小程序://Tabelog/…` 为用户提供的微信 Short Link，只作为可复制文本展示；复制成功后由用户点击“打开微信”（`weixin://`，仅尝试唤起微信本身），在微信中使用口令，或按 [Tabelog 官方 FAQ](https://tabelog.com/cn/help) 在微信搜索 Tabelog。不会自动发送聊天消息、读写微信内容或声称已进入小程序。复制权限被拒绝时提供可选中的完整口令，允许手动长按复制。原餐厅链接仍显示在“查看原餐厅网页”，口令不保证直达该餐厅；电脑仍按原餐厅网页打开。
+
+微信[获取小程序 Short Link 官方文档](https://developers.weixin.qq.com/miniprogram/dev/server/API/qrcode-link/short-link/api_generateshortlink.html)说明此类短链用于微信内拉起小程序；外部启动是另一种 [URL Scheme](https://developers.weixin.qq.com/miniprogram/dev/server/API/qrcode-link/url-scheme/api_generatescheme.html) 接口。当前没有获得 Tabelog 提供的外部启动链接，不能从现有口令、餐厅编号或小程序名称自行生成一个可验证的外部入口。后续如得到官方外部链接，可再接入直接跳转；当前保留手动微信入口，避免继续尝试用户已反馈失败的 App 协议。
+
+Klook 分享短链的随机代码不是活动编号；当前已通过官网的 301/302 链与活动页原生元数据核实用户提供的 `s.klook.cn/c/E1_rePa5A3`，对应活动 59360，并将它及中间跳转地址作为已解析别名保存在 `KLOOK_RESOLVED_LINKS`。这是已知短链的记录，不是通用解码算法。Klook 的短链和活动页没有提供此次检查所需的跨域响应头，纯静态页面无法通用地读取所有短链的跳转目的地；未来未解析的新短链或不支持的 Klook 页面会提示换成完整活动页面链接，停留在旅行地图，由用户选择是否打开网页版，不会自动重复网页唤起流程。其他不支持的链接仍按原网页行为处理；不会在后台请求私人订单，也不向第三方解析服务发送链接。
+
+本次针对安卓 Edge 的商店跳转、Tabelog 版本和 Klook 短链已加入回归检查；用户尚需在已安装对应 App 的手机上复测本次调整。Agoda 共享行程没有找到可核实的原生详情路由，因此明确降为 App 首页入口，不将任意网页路径拼接成未经证实的原生路由。启动脚本带版本参数，避免刷新后仍命中旧版脚本缓存。
+
+预设依据为官方网页及 App 关联声明：Agoda 的[官网](https://www.agoda.com/)首页 `agoda://home/` 元数据和共享行程页面引用的公开 `cdn-trip-view-bff` 启动脚本；Klook 的[活动页面](https://www.klook.cn/zh-CN/activity/59360/)中 `twitter:app:url:iphone` 元数据提供 `klook://activity/59360`；HopeGoo 的[官方下载页](https://app.hopegoo.com/download/appdownload)公开启动模块；Tabelog 微信小程序由[官方公告](https://corporate.kakaku.com/news/20250423)及上述官方 FAQ 确认，面板使用用户提供的口令。所有新增图标随 assets 打包，本地服务新增了对应白名单，旧服务需重启。
 
 大阪、东京住宿已根据用户提供的信息填写为 Airbnb，京都为携程预订。住宿卡片显示完整地址，提供一个 Google 地点查看入口和预订平台链接；Google 地图、Airbnb、携程按钮带对应应用图标，图标存放在本地 assets 目录。两条 Airbnb 行程链接按用户提供顺序分别对应大阪、东京，打开可能需要登录；京都跳转携程首页。地址与个人行程链接仅在本地原型中保存，未打开或检查私人订单。
 

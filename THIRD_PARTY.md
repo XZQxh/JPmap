@@ -10,6 +10,7 @@
 - 备用栅格地图：国土地理院淡色地图，https://maps.gsi.go.jp/development/ichiran.html 。
 - Google Maps 仅通过官方 Maps URLs 跳转，不加载 Google 地图 API：https://developers.google.com/maps/documentation/urls/get-started 。
 - 按钮应用图标来自各自官方网站，分别为 https://www.gstatic.com/images/branding/product/2x/maps_96in128dp.png 、https://www.airbnb.com/favicon.ico 、https://www.ctrip.com/favicon.ico 。图标及商标归对应权利人所有，仅用于标识跳转目标。
+- 新增平台按钮图标：Agoda https://www.agoda.com/favicon.ico （原始数据为 PNG，保存为 `assets/agoda.png`），Klook https://cdn.klook.com/s/dist_web/assert/desktop/imgs/favicon-6f375b9820.png ，Tabelog https://tblg.k-img.com/images/smartphone/favicon.ico?20230727 ，HopeGoo 使用其官方 App Store 应用 https://apps.apple.com/app/id6479733264 的公开 `artworkUrl100` 图标（通过 Apple `https://itunes.apple.com/lookup?id=6479733264` 查询，原始数据为 JPEG，保存为 `assets/hopegoo.jpg`）。图标及商标归对应权利人所有，仅用于标识跳转目标；餐具图标 `assets/dining.svg` 为本项目绘制的简单线条图形。
 
 此项目参考 nearcade 的 MapLibre 渲染思路，未复制 nearcade 的源码或调用其私人地理服务。
 

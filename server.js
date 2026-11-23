@@ -16,6 +16,10 @@ const server = http.createServer((req, res) => {
   publicFiles['/weather.css'] = ['weather.css', 'text/css; charset=utf-8'];
   publicFiles['/place-search.js'] = ['place-search.js', 'text/javascript; charset=utf-8'];
   publicFiles['/place-search-ui.js'] = ['place-search-ui.js', 'text/javascript; charset=utf-8'];
+  publicFiles['/app-links.js'] = ['app-links.js', 'text/javascript; charset=utf-8'];
+  for (const [file, type] of [['agoda.png', 'image/png'], ['klook.png', 'image/png'], ['hopegoo.jpg', 'image/jpeg'], ['tabelog.ico', 'image/x-icon'], ['dining.svg', 'image/svg+xml']]) {
+    publicFiles['/assets/' + file] = ['assets/' + file, type];
+  }
   publicFiles['/map-color-style.js'] = ['map-color-style.js', 'text/javascript; charset=utf-8'];
   publicFiles['/assets/maimai.ico'] = ['assets/maimai.ico', 'image/x-icon'];
   const file = publicFiles[pathname];
