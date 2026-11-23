@@ -4,7 +4,7 @@
 
 用户已选择改试 Supabase Free；原 CloudBase 免费环境无法添加 GitHub Pages 来源，线上 CORS 验证失败。
 
-浏览器代码已改用 Supabase 官方 SDK。本地数据库权限、版本冲突、备份及界面检查不能代替真实云端验证。等待所有者提供新项目 URL 和可发布密钥；配置前网站仅保存本机行程。
+浏览器代码已改用 Supabase 官方 SDK。所有者已提供项目 `https://lwxrifdcrhaizcobrpfp.supabase.co` 及 Publishable key，已填写公开配置。本地数据库权限、版本冲突、备份及界面检查不能代替真实云端验证；还需验证云端 SQL 初始化、认证和实际线上来源。
 
 ## 1. 创建项目并获取公开配置
 
