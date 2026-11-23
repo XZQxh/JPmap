@@ -4,7 +4,9 @@
 
 用户已选择改试 Supabase Free；原 CloudBase 免费环境无法添加 GitHub Pages 来源，线上 CORS 验证失败。
 
-浏览器代码已改用 Supabase 官方 SDK。所有者已提供项目 `https://lwxrifdcrhaizcobrpfp.supabase.co` 及 Publishable key，已填写公开配置。本地数据库权限、版本冲突、备份及界面检查不能代替真实云端验证；还需验证云端 SQL 初始化、认证和实际线上来源。
+浏览器代码已改用 Supabase 官方 SDK。所有者已提供项目 `https://lwxrifdcrhaizcobrpfp.supabase.co` 及 Publishable key，已填写公开配置并发布。
+
+所有者已确认执行 SQL 和创建应用账号。从真实 GitHub Pages 来源运行 `npm run check:online` 已通过：匿名调用 `jpmap_load` 收到 PostgreSQL `42501 permission denied for function jpmap_load`，没有 CORS 或网络错误。桌面和手机尺寸的官方 SDK、备份导入/导出/恢复也已通过。此结果证明匿名读取被拒绝且线上来源可以连接，不等于已验证真实账号的写入；当前等待所有者验证电脑上传和手机读取。
 
 ## 1. 创建项目并获取公开配置
 
