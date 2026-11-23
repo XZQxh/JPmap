@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  function createPanel({ host, getDay, getPlaces, onSelectDay, client = root.JP_WEATHER.createClient(), now = Date.now }) {
+  function createPanel({ host, getDay, getPlaces, onSelectDay, getView = () => 'all', isActive = () => true, client = root.JP_WEATHER.createClient(), now = Date.now }) {
     const W = root.JP_WEATHER;
     let spot = W.FUJI_SPOTS[0], previousDay, viewDate = W.FUJI_DAYS[0];
     const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -15,27 +15,6 @@
       return r.status === 'past' ? '日期已过，本页不提供历史天气' : `尚未进入预报范围 · 预计 ${r.opens} 起可查询`;
     }
     function current(state) { return state.status === 'ready' && !state.stale; }
-    function daySummary(date) {
-      const locations = W.locationsForDay(date, getPlaces()), r = range(date);
-      if (!locations.length) return { location: '', text: '' };
-      const location = date === '2027-02-17' ? '京都 / 大阪 / 东京' : locations[0].name;
-      if (r.status !== 'available') return { location, text: r.text };
-      const states = locations.map(item => client.read(item));
-      const forecasts = states.map(state => current(state) && W.dailyFor(state.data, date));
-      if (forecasts.every(Boolean)) {
-        if (forecasts.length > 1) return { location, text: forecasts.map(item => W.weatherCode(item.code).icon).join(' / ') };
-        const daily = forecasts[0];
-        return { location, text: `${W.weatherCode(daily.code).icon} ${unit(daily.min, '')}–${unit(daily.max, '°')}` };
-      }
-      return { location, text: states.some(state => state.status === 'error') ? '加载失败' : '预报加载中' };
-    }
-    function updateDateChips() {
-      root.document.querySelectorAll('[data-weather-date]').forEach(node => {
-        const summary = daySummary(node.dataset.weatherDate);
-        node.textContent = summary.text;
-        node.title = `${summary.location} · ${summary.text}`;
-      });
-    }
     function dailyCard(date, location) {
       const r = range(date), state = client.read(location), daily = state.data && W.dailyFor(state.data, date);
       if (r.status !== 'available') return `<article class="weather-location"><strong>${escape(location.name)}</strong><p class="weather-muted">${pendingText(date)}</p></article>`;
@@ -62,7 +41,7 @@
         state.status === 'ready' && !state.stale ? '该日白天三小时连续数据不足，暂不评分' : '正在读取云量、能见度与降水…';
       if (selected) message = `${shortDate(viewDate)} 较好时段 ${selected.start}–${selected.end} · 日本时间`;
       return `<section class="fuji-panel" aria-labelledby="fujiTitle">
-        <div class="weather-heading"><div><p class="weather-kicker">东京段 · 看山择日</p><h3 id="fujiTitle">富士见预报</h3></div><span class="fuji-badge">${selected ? labels[selected.grade] : '等待预报'}</span></div>
+        <div class="weather-heading"><div><p class="weather-kicker">东京段 · 看山择日</p><h3 id="fujiTitle">富士見予報</h3></div><span class="fuji-badge">${selected ? labels[selected.grade] : '等待预报'}</span></div>
         <label class="fuji-location">观景方向<select data-fuji-spot aria-label="富士山观景地点">${W.FUJI_SPOTS.map(item => `<option value="${item.id}" ${spot.id === item.id ? 'selected' : ''}>${item.name}</option>`).join('')}</select></label>
         <div class="fuji-scene ${selected ? selected.grade : 'waiting'}">
           <svg viewBox="0 0 360 116" aria-hidden="true"><circle cx="282" cy="28" r="15" class="fuji-sun"/><path d="M0 108 76 77 117 94 178 18 249 96 288 79 360 108V116H0Z" fill="#779b9e"/><path d="m150 53 28-35 35 39-20-7-12 8-15-10Z" fill="#f6fbff"/><path d="M0 109q70-18 135 0t135 0 90 0V116H0Z" fill="#aac6ca"/><g class="fuji-clouds" fill="#fff" opacity=".9"><ellipse cx="169" cy="57" rx="61" ry="12"/><ellipse cx="151" cy="49" rx="27" ry="14"/><ellipse cx="191" cy="51" rx="32" ry="13"/></g></svg>
@@ -74,7 +53,7 @@
         <p class="fuji-window" role="status">${message}</p>
         ${selected ? `<div class="fuji-metrics"><span>总云量<b>${unit(selected.cloud, '%')}</b></span><span>低云量<b>${unit(selected.low, '%')}</b></span><span>能见度 ≥<b>${unit(selected.visibility / 1000, ' km')}</b></span><span>降水概率 ≤<b>${unit(selected.rain, '%')}</b></span></div><p class="weather-meta">云量为时段均值；能见度取最低值，降水概率取最高值。</p>` : ''}
         <details class="fuji-method"><summary>怎么看这个预报</summary><p>绿色较适合，橙色可备选，灰色不理想或待预报。比较 07:00–17:00 内有日照的连续三小时；相同分数优先较早时段。</p><p>参考分：少云占 45 分，地面能见度占 30 分（30 km 封顶），低降水概率占 25 分。雨雪量 ≥ 0.2 mm、降水概率 ≥ 60% 或能见度 &lt; 10 km 的时段限制到 39 分以下。较适合还需总云 ≤ 40%、低云 ≤ 30%、能见度 ≥ 20 km、降水概率 ≤ 20%。</p><p>这是基于观景点地面预报的相对评分，不是见山概率，也不是官方富士山可见度预报。山顶、视线沿途的云雾及遮挡未被完整建模；东京晴天不代表富士山可见。出发前 1–3 天再复核。</p></details>
-        <div class="weather-footer"><span>${source}${timeLabel(state) ? `<br>${timeLabel(state)}` : ''}${state.stale ? '<br>缓存已过期，待更新' : ''}</span><button type="button" class="weather-refresh" data-refresh-fuji ${!anyInRange || state.status === 'loading' ? 'disabled' : ''}>刷新富士见预报</button></div>
+        <div class="weather-footer"><span>${source}${timeLabel(state) ? `<br>${timeLabel(state)}` : ''}${state.stale ? '<br>缓存已过期，待更新' : ''}</span><button type="button" class="weather-refresh" data-refresh-fuji ${!anyInRange || state.status === 'loading' ? 'disabled' : ''}>刷新富士見予報</button></div>
       </section>`;
     }
     function loadLocations(locations, force = false) {
@@ -87,19 +66,17 @@
         }
       });
     }
+    function showFuji() { return getView() === 'fuji' || (getView() === 'all' && W.TOKYO_DAYS.includes(getDay())); }
     function visibleLocations() {
-      const date = getDay(), locations = [];
-      // Fetch each location once for its full forecast, including dates not yet selected.
-      for (let offset = 0; offset < 11; offset++) {
-        const tripDate = W.addDays('2027-02-12', offset);
-        if (range(tripDate).status === 'available') locations.push(...W.locationsForDay(tripDate, getPlaces()));
-      }
-      if (W.TOKYO_DAYS.includes(date) && W.FUJI_DAYS.some(item => range(item).status === 'available')) locations.push(spot);
+      const date = getDay(), locations = getView() !== 'fuji' && range(date).status === 'available' ? W.locationsForDay(date, getPlaces()) : [];
+      if (showFuji() && W.FUJI_DAYS.some(item => range(item).status === 'available')) locations.push(spot);
       return locations;
     }
     function render({ refresh = false } = {}) {
+      // A closed query dialog does no work, including after a late network response.
+      if (!isActive()) return;
       const date = getDay(), locations = W.locationsForDay(date, getPlaces());
-      if (!locations.length) { host.hidden = true; updateDateChips(); return; }
+      if (!locations.length && getView() !== 'fuji') { host.hidden = true; return; }
       if (previousDay !== date && W.FUJI_DAYS.includes(date)) viewDate = date;
       previousDay = date;
       // Start requests before building the view so loading and retry buttons reflect actual state.
@@ -107,11 +84,11 @@
       const methodOpen = host.querySelector('.fuji-method')?.open;
       const r = range(date), loading = locations.some(location => client.read(location).status === 'loading');
       host.hidden = false;
-      host.innerHTML = `<section class="daily-weather" aria-labelledby="dailyWeatherTitle"><div class="weather-heading"><h3 id="dailyWeatherTitle">${shortDate(date)} · 当地天气</h3><span class="weather-meta">${r.status === 'available' ? r.text : '16 天预报 · 含今天'}</span></div>
+      host.innerHTML = (getView() !== 'fuji' ? `<section class="daily-weather" aria-labelledby="dailyWeatherTitle"><div class="weather-heading"><h3 id="dailyWeatherTitle">${shortDate(date)} · 当地天气</h3><span class="weather-meta">${r.status === 'available' ? r.text : '16 天预报 · 含今天'}</span></div>
         ${locations.map(location => dailyCard(date, location)).join('')}
-        <div class="weather-footer"><span>${source} · 日本时间</span><button type="button" class="weather-refresh" data-refresh-weather ${r.status !== 'available' || loading ? 'disabled' : ''}>${loading ? '正在更新…' : '刷新天气'}</button></div></section>${W.TOKYO_DAYS.includes(date) ? fujiCard() : ''}`;
-      if (methodOpen) host.querySelector('.fuji-method').open = true;
-      host.querySelector('[data-refresh-weather]').addEventListener('click', () => render({ refresh: true }));
+        <div class="weather-footer"><span>${source} · 日本时间</span><button type="button" class="weather-refresh" data-refresh-weather ${r.status !== 'available' || loading ? 'disabled' : ''}>${loading ? '正在更新…' : '刷新天气'}</button></div></section>` : '') + (showFuji() ? fujiCard() : '');
+      if (methodOpen && showFuji()) host.querySelector('.fuji-method').open = true;
+      host.querySelector('[data-refresh-weather]')?.addEventListener('click', () => render({ refresh: true }));
       host.querySelector('[data-refresh-fuji]')?.addEventListener('click', () => {
         loadLocations([spot], true); render();
       });
@@ -121,9 +98,8 @@
       host.querySelectorAll('[data-fuji-date]').forEach(button => button.addEventListener('click', () => {
         viewDate = button.dataset.fujiDate; onSelectDay(viewDate);
       }));
-      updateDateChips();
     }
-    return { render, daySummary };
+    return { render };
   }
   root.JP_WEATHER_UI = { createPanel };
 })(typeof window === 'undefined' ? globalThis : window);

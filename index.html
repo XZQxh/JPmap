@@ -137,20 +137,44 @@
     .filter-chip { flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: #626d66; border-radius: 999px; padding: 7px 10px; font-size: 11px; }
     .filter-chip.active { border-color: var(--green); background: var(--green-soft); color: var(--green); }
     .content-scroll { overflow: auto; min-height: 0; padding: 0 16px 14px; flex: 1; }
-    .flight-card { border: 1px solid #f0dfd7; background: linear-gradient(135deg, #fffaf7, #fffdf9); border-radius: 17px; padding: 13px 13px 12px; margin: 2px 0 9px; }
+    .flight-card { width: 100%; display: block; text-align: left; font: inherit; color: inherit; border: 1px solid #f0dfd7; background: linear-gradient(135deg, #fffaf7, #fffdf9); border-radius: 12px; padding: 9px 10px; margin: 2px 0 9px; cursor: pointer; }
+    .flight-card:hover { border-color: #c9917d; background: #fff7f0; }
+    .flight-card:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
     .flight-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .flight-label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; }
-    .flight-symbol { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 9px; color: #a75d49; background: #f8e9e1; }
-    .flight-status { border: 0; border-radius: 999px; background: #f3e7df; color: #99543f; font-size: 10px; padding: 5px 8px; }
+    .flight-label { min-width: 0; display: flex; align-items: center; gap: 5px; font-size: 13px; }
+    .flight-label strong { flex-shrink: 0; }
+    .flight-airline { color: #657068; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .flight-symbol { flex-shrink: 0; color: #a75d49; }
+    .flight-card .flight-status { padding: 2px 6px; }
+    .flight-compact-route { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 6px; font-size: 13px; line-height: 1.5; white-space: nowrap; }
+    .flight-compact-route strong { font-size: 15px; }
+    .flight-compact-route .route-arrow { font-size: 14px; }
+    .flight-status { flex-shrink: 0; border-radius: 999px; font-size: 12px; padding: 5px 8px; }
     .flight-status.confirmed { background: #e5f1e9; color: #286047; }
     .flight-route { display: grid; grid-template-columns: 1fr 30px 1fr; gap: 5px; align-items: center; margin: 12px 1px 9px; }
     .airport strong { display: block; font-size: 17px; letter-spacing: -.03em; }
-    .airport span { display: block; color: #657068; font-size: 10px; margin-top: 2px; }
+    .airport span { display: block; color: #657068; font-size: 13px; margin-top: 2px; }
     .airport:last-child { text-align: right; }
     .route-arrow { color: #c77b63; text-align: center; font-size: 18px; }
-    .flight-foot { border-top: 1px solid #f0e8e0; padding-top: 8px; display: flex; justify-content: space-between; gap: 8px; color: #757e77; font-size: 10px; }
-    .flight-foot strong { color: #414c45; font-size: 11px; }
-    .flight-note { margin: 8px 0 0; color: #8c776e; font-size: 10px; line-height: 1.45; }
+    .flight-note { margin: 10px 0; color: #6e645e; font-size: 14px; line-height: 1.6; }
+    .flight-dialog { width: min(620px, calc(100% - 28px)); overflow: hidden; }
+    .flight-dialog[open] { display: flex; flex-direction: column; }
+    .flight-dialog .dialog-head { flex-shrink: 0; border-bottom: 1px solid #ede8e0; padding-bottom: 14px; gap: 12px; }
+    .flight-dialog .dialog-body { overflow: auto; overscroll-behavior: contain; min-height: 0; padding-top: 16px; }
+    .flight-dialog .flight-route { padding: 16px 12px; border-radius: 14px; background: #fff7f0; }
+    .flight-dialog .airport strong { font-size: 24px; }
+    .flight-dialog .airport small { display: block; color: #657068; font-size: 12px; margin-top: 5px; }
+    .flight-detail-meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+    .flight-memo { margin-top: 18px; }
+    .flight-memo .field > span { font-size: 14px; }
+    .flight-memo textarea { font-size: 16px; }
+    .flight-memo-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .flight-memo-footer .nav-note { margin: 0; }
+    .flight-lookup { margin-top: 20px; border-top: 1px solid #ede8e0; padding-top: 12px; }
+    .flight-lookup summary { cursor: pointer; font-size: 14px; color: #657068; }
+    .flight-detail-heading { font-size: 16px; margin: 20px 0 8px; }
+    .flight-dialog .nav-link { font-size: 14px; min-height: 40px; }
+    .flight-dialog .nav-note { font-size: 13px; line-height: 1.6; }
     .section-label { display: flex; align-items: center; justify-content: space-between; margin: 15px 3px 8px; color: #727b75; font-size: 11px; font-weight: 650; }
     .section-label span:last-child { font-weight: 450; }
     .place-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 9px; border: 1px solid #edede6; background: #fff; border-radius: 15px; padding: 10px; margin-bottom: 7px; }
@@ -325,6 +349,7 @@
     <nav class="datebar" id="datebar" aria-label="选择行程日期"></nav>
     <div class="explore-tools">
       <button class="tool-button" type="button" id="liveLocationBtn" aria-pressed="false" aria-label="显示我的位置" title="显示我的位置">◎ 显示我的位置</button>
+      <button class="tool-button weather-query-button" type="button" id="weatherBtn" aria-haspopup="dialog" aria-controls="weatherDialog"><span aria-hidden="true">☀</span> 天气预报</button>
       <button class="tool-button mobile-only" type="button" id="mobileToolsBtn" aria-expanded="false" aria-controls="searchGroups"><img class="maimai-icon" src="assets/maimai.ico" alt="" aria-hidden="true">附近查找</button>
       <div class="search-groups" id="searchGroups">
       <div class="arcade-search-group" role="group" aria-label="查找 maimai DX 机厅">
@@ -358,7 +383,7 @@
         <div class="side-details" id="tripPanelDetails">
         <div class="side-head">
           <div class="eyebrow" id="dayLabel">DAY 01 · 2027</div>
-          <div class="side-title-row"><h2 class="side-title" id="dayTitle">大阪 · 抵达日</h2><span class="weather-note" id="daySubtitle">🧳 候选航班已加入</span></div>
+          <div class="side-title-row"><h2 class="side-title" id="dayTitle">大阪 · 抵达日</h2><span class="weather-note" id="daySubtitle">✈ HO1337 · 已订</span></div>
         </div>
         <div class="filter-row" id="filters" aria-label="地点类别筛选"></div>
         <div class="content-scroll">
@@ -384,15 +409,31 @@
             <button class="button secondary" type="button" id="morePilgrimBtn" hidden>显示更多圣地</button>
             <p class="pilgrim-attribution">资料：<a href="https://anitabi.cn/" target="_blank" rel="noopener noreferrer">Anitabi 巡礼地图</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a><br>截图与原始资料来源见各点位；距离为直线距离，请遵守现场参观规定。</p>
           </section>
-          <div id="weatherContent" aria-live="polite"></div>
           <div id="dayContent"></div>
         </div>
         <button class="quick-add" id="quickAddBtn" type="button">＋ 添加地点或备注</button>
-        <p class="footnote">✦ 地图在线加载；你的行程保存在当前设备。航班为候选方案，确认出票后可切换状态。</p>
+        <p class="footnote">✦ 行程保存在当前设备。三段机票均已订；点击航班卡片查看详情与机场接驳。</p>
         </div>
       </aside>
     </section>
   </main>
+
+  <dialog id="flightDialog" class="flight-dialog" aria-labelledby="flightDialogTitle">
+    <div class="dialog-head"><h2 id="flightDialogTitle">航班详情</h2><button class="button secondary" type="button" id="closeFlightBtn" aria-label="收起航班详情">收起</button></div>
+    <div class="dialog-body" id="flightDetailContent"></div>
+  </dialog>
+
+  <dialog id="weatherDialog" class="weather-dialog" aria-labelledby="weatherDialogTitle">
+    <div class="dialog-head"><h2 id="weatherDialogTitle">天气查询</h2><button class="close-btn" type="button" id="closeWeatherBtn" aria-label="关闭天气查询">×</button></div>
+    <div class="weather-query-controls">
+      <div class="weather-tabs" role="tablist" aria-label="预报类型">
+        <button type="button" id="dailyWeatherTab" role="tab" aria-selected="true" aria-controls="weatherContent">每日预报</button>
+        <button type="button" id="fujiWeatherTab" role="tab" aria-selected="false" aria-controls="weatherContent" tabindex="-1">富士見予報</button>
+      </div>
+      <label class="weather-date-field" id="weatherDateField">行程日期<select id="weatherDate" aria-label="查询天气日期"></select></label>
+    </div>
+    <div class="weather-dialog-scroll" id="weatherContent" role="tabpanel" aria-labelledby="dailyWeatherTab" tabindex="0"></div>
+  </dialog>
 
   <dialog id="placeDialog">
     <form id="placeForm">
@@ -468,9 +509,9 @@
       '2027-02-22': ['东京 · 返程日', '✈ HO1380 · 13:15 起飞']
     };
     const FLIGHTS = [
-      { id: 'ho1337', date: '2027-02-12', airline: '吉祥航空', code: 'HO1337', from: 'PVG', fromName: '上海浦东', fromTerminal: 'T2', fromTime: '17:50', to: 'KIX', toName: '大阪关西', toTerminal: 'T1', toTime: '20:55', duration: '2h 05m', aircraft: '波音 787-9', meal: '有餐食', confirmed: false, note: '当地时间 · 抵达后前往大国町 Airbnb' },
-      { id: 'mm309', date: '2027-02-17', airline: 'Peach 日本乐桃航空', code: 'MM309', from: 'KIX', fromName: '大阪关西', fromTerminal: 'T2', fromTime: '15:00', to: 'NRT', toName: '东京成田', toTerminal: 'T1', toTime: '16:25', duration: '1h 25m', aircraft: '空客 A320-NEO', meal: '无餐食', confirmed: false, note: '当地时间 · 京都退房后前往 KIX，到达后去驹込附近住宿' },
-      { id: 'ho1380', date: '2027-02-22', airline: '吉祥航空', code: 'HO1380', from: 'NRT', fromName: '东京成田', fromTerminal: 'T2', fromTime: '13:15', to: 'PVG', toName: '上海浦东', toTerminal: 'T2', toTime: '15:40', duration: '3h 25m', aircraft: '波音 787-9', meal: '有餐食', confirmed: false, note: '当地时间 · 返程日' }
+      { id: 'ho1337', date: '2027-02-12', airline: '吉祥航空', code: 'HO1337', from: 'PVG', fromName: '上海浦东', fromTerminal: 'T2', fromTime: '17:50', to: 'KIX', toName: '大阪关西', toTerminal: 'T1', toTime: '20:55', duration: '2h 05m', aircraft: '波音 787-9', meal: '有餐食', confirmed: true, note: '当地时间 · 抵达后前往大国町 Airbnb' },
+      { id: 'mm309', date: '2027-02-17', airline: 'Peach 日本乐桃航空', code: 'MM309', from: 'KIX', fromName: '大阪关西', fromTerminal: 'T2', fromTime: '15:00', to: 'NRT', toName: '东京成田', toTerminal: 'T1', toTime: '16:25', duration: '1h 25m', aircraft: '空客 A320-NEO', meal: '无餐食', confirmed: true, note: '当地时间 · 京都退房后前往 KIX，到达后去驹込附近住宿' },
+      { id: 'ho1380', date: '2027-02-22', airline: '吉祥航空', code: 'HO1380', from: 'NRT', fromName: '东京成田', fromTerminal: 'T2', fromTime: '13:15', to: 'PVG', toName: '上海浦东', toTerminal: 'T2', toTime: '15:40', duration: '3h 25m', aircraft: '波音 787-9', meal: '有餐食', confirmed: true, note: '当地时间 · 返程日' }
     ];
     const airportCoords = {
       PVG: [31.1443, 121.8083], KIX: [34.4347, 135.2440], NRT: [35.7720, 140.3929]
@@ -510,9 +551,13 @@
       });
     }
     places = updateSavedStays(places, saved?.accommodationRevision || 0);
-    let flightState = Array.isArray(saved?.flights) ? saved.flights : FLIGHTS.map(f => ({ id: f.id, confirmed: false }));
-    if (saved && (saved.accommodationRevision || 0) < ACCOMMODATION_REVISION) {
-      try { saveState(); } catch (_) { /* Updated stays still work for this session if storage is full. */ }
+    function updateSavedFlights(list) {
+      const previous = Array.isArray(list) ? list : [];
+      return FLIGHTS.map(flight => ({ ...previous.find(item => item.id === flight.id), id: flight.id, confirmed: flight.confirmed }));
+    }
+    let flightState = updateSavedFlights(saved?.flights);
+    if (saved && ((saved.accommodationRevision || 0) < ACCOMMODATION_REVISION || JSON.stringify(saved.flights) !== JSON.stringify(flightState))) {
+      try { saveState(); } catch (_) { /* Updated itinerary still works for this session if storage is full. */ }
     }
     let selectedDay = '2027-02-12';
     let weatherPanel = null;
@@ -1005,12 +1050,6 @@
       return place.endDate ? place.date <= day && day <= place.endDate : place.date === day;
     }
     function getFlight(day) { return FLIGHTS.find(f => f.date === day); }
-    function flightConfirmed(id) { return !!flightState.find(f => f.id === id)?.confirmed; }
-    function persistFlight(id, confirmed) {
-      flightState = flightState.filter(f => f.id !== id).concat({ id, confirmed });
-      saveState(); renderAll();
-      showToast(confirmed ? '已标记为已出票' : '已恢复为候选航班');
-    }
     function showToast(message) {
       const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show');
       clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
@@ -1019,8 +1058,7 @@
       const bar = document.getElementById('datebar');
       bar.innerHTML = DAYS.map(day => {
         const flight = getFlight(day);
-        const weather = weatherPanel?.daySummary(day) || { location: '', text: '待预报' };
-        return `<button type="button" class="date-chip ${day === selectedDay ? 'active' : ''} ${flight ? 'flight-day' : ''}" data-day="${day}"><span>${dateLabel(day).split('/')[0]}月</span><strong>${dateLabel(day).split('/')[1]}</strong><small class="date-location">${escapeHtml(weather.location)}</small><small class="date-weather" data-weather-date="${day}">${escapeHtml(weather.text)}</small></button>`;
+        return `<button type="button" class="date-chip ${day === selectedDay ? 'active' : ''} ${flight ? 'flight-day' : ''}" data-day="${day}"><span>${dateLabel(day).split('/')[0]}月</span><strong>${dateLabel(day).split('/')[1]}</strong></button>`;
       }).join('') + `<button type="button" class="date-chip unscheduled ${selectedDay === 'unscheduled' ? 'active' : ''}" data-day="unscheduled"><span>自由收集</span><strong>未排期</strong></button>`;
       bar.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
         selectedDay = btn.dataset.day; activeFilter = 'all'; renderAll(); map?.resize();
@@ -1041,15 +1079,51 @@
       return activeFilter === 'all' ? all : all.filter(p => p.category === activeFilter);
     }
     function flightCard(flight) {
-      const confirmed = flightConfirmed(flight.id);
-      return `<article class="flight-card">
-        <div class="flight-top"><div class="flight-label"><span class="flight-symbol">✈</span><span>${escapeHtml(flight.code)} · ${escapeHtml(flight.airline)}</span></div>
-          <button type="button" class="flight-status ${confirmed ? 'confirmed' : ''}" data-flight="${flight.id}" title="点击切换航班状态">${confirmed ? '✓ 已出票' : '候选航班'}</button></div>
-        <div class="flight-route"><div class="airport"><strong>${flight.fromTime} · ${flight.from}</strong><span>${flight.fromName} ${flight.fromTerminal}</span></div><div class="route-arrow">→</div><div class="airport"><strong>${flight.toTime} · ${flight.to}</strong><span>${flight.toName} ${flight.toTerminal}</span></div></div>
-        <div class="flight-foot"><span><strong>${flight.duration}</strong> · 当地时间</span><span>${escapeHtml(flight.aircraft)} · ${escapeHtml(flight.meal)}</span></div>
-        <p class="flight-note">${escapeHtml(flight.note)}</p>
+      return `<button type="button" class="flight-card" data-flight="${escapeHtml(flight.id)}" aria-haspopup="dialog" aria-controls="flightDialog" aria-label="${escapeHtml(flight.code)} ${escapeHtml(flight.airline)}，${escapeHtml(flight.fromTime)} ${escapeHtml(flight.fromTerminal)} 至 ${escapeHtml(flight.toTime)} ${escapeHtml(flight.toTerminal)}，已订，查看详情">
+        <span class="flight-top"><span class="flight-label"><span class="flight-symbol" aria-hidden="true">✈</span><strong>${escapeHtml(flight.code)}</strong><span class="flight-airline">${escapeHtml(flight.airline)}</span></span><span class="flight-status confirmed">✓ 已订</span></span>
+        <span class="flight-compact-route"><span><strong>${escapeHtml(flight.fromTime)}</strong> ${escapeHtml(flight.from)} ${escapeHtml(flight.fromTerminal)}</span><span class="route-arrow" aria-hidden="true">→</span><span><strong>${escapeHtml(flight.toTime)}</strong> ${escapeHtml(flight.to)} ${escapeHtml(flight.toTerminal)}</span></span>
+      </button>`;
+    }
+    function flightLookupLinks(flight) {
+      const airportUrl = (code, departure) => ({
+        PVG: 'https://www.shanghaiairport.com/flights/index.html',
+        KIX: 'https://www.kansai-airport.or.jp/en/flight/search',
+        NRT: `https://www.narita-airport.jp/en/flight/${departure ? 'dep' : 'arr'}-search/`
+      })[code];
+      const link = (url, label) => `<a class="nav-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+      return `<div class="nav-links">${link(airportUrl(flight.from, true), `${flight.fromName}出发动态`)}${link(airportUrl(flight.to, false), `${flight.toName}到达动态`)}${flight.id === 'mm309' ? link('https://www.flypeach.com/en/lm/flightStatus', 'Peach 航班动态') : ''}</div>`;
+    }
+    function flightDetails(flight) {
+      const zone = code => code === 'PVG' ? '中国时间 UTC+8' : '日本时间 UTC+9';
+      const personalNote = flightState.find(item => item.id === flight.id)?.personalNote || '';
+      return `<div class="flight-detail-meta"><span>${escapeHtml(flight.airline)} · ${escapeHtml(flight.code)}</span><span class="flight-status confirmed">✓ 机票已订</span></div>
+        <p class="flight-note">${escapeHtml(flight.date)} · ${dateLabel(flight.date, true).split(' ')[1]} · 飞行 ${escapeHtml(flight.duration)}</p>
+        <div class="flight-route"><div class="airport"><strong>${escapeHtml(flight.fromTime)}</strong><span>${escapeHtml(flight.fromName)} ${escapeHtml(flight.from)} · ${escapeHtml(flight.fromTerminal)}</span><small>${zone(flight.from)}</small></div><div class="route-arrow" aria-hidden="true">→</div><div class="airport"><strong>${escapeHtml(flight.toTime)}</strong><span>${escapeHtml(flight.toName)} ${escapeHtml(flight.to)} · ${escapeHtml(flight.toTerminal)}</span><small>${zone(flight.to)}</small></div></div>
+        <h3 class="flight-detail-heading">机场接驳导航</h3>
         ${flightConnections(flight)}
-      </article>`;
+        <p class="flight-note">${escapeHtml(flight.note)}</p>
+        <p class="nav-note">${escapeHtml(flight.aircraft)} · ${escapeHtml(flight.meal)}</p>
+        <form class="flight-memo" id="flightNoteForm" data-flight="${escapeHtml(flight.id)}">
+          <label class="field"><span>航班备注（可选）</span><textarea name="personalNote" rows="2" maxlength="500" placeholder="查完后记一下柜台、登机口或行李额度">${escapeHtml(personalNote)}</textarea></label>
+          <div class="flight-memo-footer"><span class="nav-note" id="flightNoteStatus" role="status">仅保存在当前设备</span><button class="button secondary" type="submit">保存备注</button></div>
+        </form>
+        <details class="flight-lookup"><summary>备用 · 官方航班查询</summary><p class="nav-note">在官网选择出行日期并搜索 ${escapeHtml(flight.code)}。时间与航站楼以实际出行信息为准。</p>${flightLookupLinks(flight)}</details>`;
+    }
+    function openFlightDetails(id) {
+      const flight = FLIGHTS.find(item => item.id === id);
+      if (!flight) return;
+      const modal = document.getElementById('flightDialog');
+      document.getElementById('flightDialogTitle').textContent = `${flight.code} · 航班详情`;
+      const content = document.getElementById('flightDetailContent');
+      content.innerHTML = flightDetails(flight);
+      if (!modal.open) modal.showModal();
+      content.scrollTop = 0;
+    }
+    function saveFlightNote(id, note) {
+      if (!FLIGHTS.some(flight => flight.id === id) || typeof note !== 'string') return;
+      flightState = flightState.map(flight => flight.id === id ? { ...flight, personalNote: note.trim().slice(0, 500) } : flight);
+      try { saveState(); return '航班备注已保存 · 当前设备'; }
+      catch (_) { return '本次已保留，设备存储不可用'; }
     }
     function placeRow(place, index, total) {
       const cat = CATS[place.category] || CATS.sight;
@@ -1073,7 +1147,7 @@
       if (selectedDay === '2027-02-12') html += `<div class="empty" style="text-align:left"><strong>晚间抵达</strong><br>20:55 抵达 KIX T1，之后前往大国町 Airbnb。导航使用完整住宿地址；交通时间待补。</div>`;
       if (selectedDay === '2027-02-22') html += `<div class="empty" style="text-align:left"><strong>返程提醒</strong><br>从驹込附近前往 NRT T2；建议预留机场交通和国际航班值机时间。</div>`;
       content.innerHTML = html;
-      content.querySelectorAll('[data-flight]').forEach(btn => btn.addEventListener('click', () => persistFlight(btn.dataset.flight, !flightConfirmed(btn.dataset.flight))));
+      content.querySelectorAll('[data-flight]').forEach(btn => btn.addEventListener('click', () => openFlightDetails(btn.dataset.flight)));
       content.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openEditor(places.find(p => p.id === btn.dataset.open))));
       content.querySelectorAll('[data-move]').forEach(btn => btn.addEventListener('click', () => movePlace(btn.dataset.id, btn.dataset.move)));
     }
@@ -1412,17 +1486,58 @@
       if (!event.target.closest('.map-options, #mobileMapOptionsBtn')) setMobileMapOptionsOpen(false);
     });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !dialog.open) { setMobileToolsOpen(false); setMobileMapOptionsOpen(false); setMobileSheetOpen(false); }
+      if (event.key === 'Escape' && !dialog.open && !document.getElementById('weatherDialog').open && !document.getElementById('flightDialog').open) { setMobileToolsOpen(false); setMobileMapOptionsOpen(false); setMobileSheetOpen(false); }
     });
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => map?.resize()).observe(document.querySelector('.map-card'));
     if (window.JP_WEATHER && window.JP_WEATHER_UI) {
+      const weatherDialog = document.getElementById('weatherDialog');
+      const weatherDate = document.getElementById('weatherDate');
+      const weatherContent = document.getElementById('weatherContent');
+      const dailyTab = document.getElementById('dailyWeatherTab');
+      const fujiTab = document.getElementById('fujiWeatherTab');
+      let weatherView = 'daily';
+      weatherDate.innerHTML = DAYS.map(date => `<option value="${date}">${dateLabel(date, true)} · 2027</option>`).join('');
+      weatherDate.value = DAYS.includes(selectedDay) ? selectedDay : DAYS[0];
       weatherPanel = window.JP_WEATHER_UI.createPanel({
-        host: document.getElementById('weatherContent'), getDay: () => selectedDay, getPlaces: () => places,
-        onSelectDay: date => { selectedDay = date; activeFilter = 'all'; renderAll(); map?.resize(); }
+        host: weatherContent, getDay: () => weatherDate.value, getPlaces: () => places,
+        getView: () => weatherView, isActive: () => weatherDialog.open,
+        onSelectDay: date => { weatherDate.value = date; weatherPanel.render(); }
       });
-      setInterval(() => { if (!document.hidden) weatherPanel.render({ refresh: true }); }, window.JP_WEATHER.TTL);
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) weatherPanel.render(); });
+      function selectWeatherView(view, focus = false) {
+        weatherView = view;
+        const fuji = view === 'fuji';
+        if (fuji && !window.JP_WEATHER.FUJI_DAYS.includes(weatherDate.value)) weatherDate.value = window.JP_WEATHER.FUJI_DAYS[0];
+        for (const [tab, selected] of [[dailyTab, !fuji], [fujiTab, fuji]]) {
+          tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+        }
+        document.getElementById('weatherDateField').hidden = fuji;
+        weatherContent.setAttribute('aria-labelledby', fuji ? fujiTab.id : dailyTab.id);
+        weatherPanel.render(); weatherContent.scrollTop = 0;
+        if (focus) (fuji ? fujiTab : dailyTab).focus();
+      }
+      dailyTab.addEventListener('click', () => selectWeatherView('daily'));
+      fujiTab.addEventListener('click', () => selectWeatherView('fuji'));
+      for (const tab of [dailyTab, fujiTab]) tab.addEventListener('keydown', event => {
+        const view = { ArrowLeft: weatherView === 'daily' ? 'fuji' : 'daily', ArrowRight: weatherView === 'daily' ? 'fuji' : 'daily', Home: 'daily', End: 'fuji' }[event.key];
+        if (view) { event.preventDefault(); selectWeatherView(view, true); }
+      });
+      weatherDate.addEventListener('change', () => { weatherPanel.render(); weatherContent.scrollTop = 0; });
+      document.getElementById('weatherBtn').addEventListener('click', () => {
+        setMobileToolsOpen(false); setMobileMapOptionsOpen(false);
+        weatherDate.value = DAYS.includes(selectedDay) ? selectedDay : DAYS[0];
+        weatherDialog.showModal(); selectWeatherView(weatherView, true);
+      });
+      document.getElementById('closeWeatherBtn').addEventListener('click', () => weatherDialog.close());
+      setInterval(() => { if (!document.hidden && weatherDialog.open) weatherPanel.render({ refresh: true }); }, window.JP_WEATHER.TTL);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && weatherDialog.open) weatherPanel.render(); });
     }
+    document.getElementById('closeFlightBtn').addEventListener('click', () => document.getElementById('flightDialog').close());
+    document.getElementById('flightDetailContent').addEventListener('submit', event => {
+      if (event.target.id !== 'flightNoteForm') return;
+      event.preventDefault();
+      const message = saveFlightNote(event.target.dataset.flight, event.target.elements.personalNote.value);
+      if (message) document.getElementById('flightNoteStatus').textContent = message;
+    });
     setupFormOptions(); renderAll();
     document.getElementById('mobileSheetDate').innerHTML = dateSelect.innerHTML;
     setMobileSheetState('collapsed');

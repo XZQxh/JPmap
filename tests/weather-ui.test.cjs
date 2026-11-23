@@ -3,28 +3,28 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const W = require('../weather.js');
-function setup({ date = '2027-02-18', now = Date.parse('2026-11-22T12:00:00Z'), read = () => ({ status: 'idle' }) } = {}) {
+function setup({ date = '2027-02-18', now = Date.parse('2026-11-22T12:00:00Z'), read = () => ({ status: 'idle' }), active = true, view = 'all' } = {}) {
   let day = date, loads = [], selections = [], nodes = new Map(), html = '';
-  const chips = W.TOKYO_DAYS.map(date => ({ dataset: { weatherDate: date } }));
   const host = { hidden: false, get innerHTML() { return html; }, set innerHTML(value) { html = value; nodes.clear(); },
     querySelector(selector) { if (!nodes.has(selector)) nodes.set(selector, { handlers: {}, addEventListener(event, handler) { this.handlers[event] = handler; } }); return nodes.get(selector); },
     querySelectorAll(selector) { return selector === '[data-fuji-date]' ? W.FUJI_DAYS.map(date => ({ dataset: { fujiDate: date }, addEventListener(event, handler) { nodes.set(date, handler); } })) : []; } };
-  const context = vm.createContext({ JP_WEATHER: W, document: { querySelectorAll: () => chips } });
+  const context = vm.createContext({ JP_WEATHER: W });
   vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../weather-ui.js'), 'utf8'), context);
   const panel = context.JP_WEATHER_UI.createPanel({ host, getDay: () => day, getPlaces: () => [], now: () => now,
+    isActive: () => active, getView: () => view,
     client: { read, load(location) { loads.push(location); return new Promise(() => {}); } }, onSelectDay(date) { day = date; selections.push(date); panel.render(); } });
-  return { panel, host, loads, chips, nodes, selections, setDay(value) { day = value; } };
+  return { panel, host, loads, nodes, selections, setDay(value) { day = value; }, setActive(value) { active = value; }, setView(value) { view = value; } };
 }
 test('future trip shows opening dates and no fabricated weather or network requests', () => {
   const f = setup(); f.panel.render();
   assert.match(f.host.innerHTML, /2027-02-03 起可查询/);
-  assert.match(f.host.innerHTML, /富士见预报/); assert.match(f.host.innerHTML, /等天气近一点/);
+  assert.match(f.host.innerHTML, /富士見予報/); assert.match(f.host.innerHTML, /等天气近一点/);
   assert.doesNotMatch(f.host.innerHTML, /参考分<|较佳候选/);
-  assert.equal(f.loads.length, 0); assert.equal(f.chips[1].textContent, '待预报');
+  assert.equal(f.loads.length, 0);
 });
 test('Fuji only appears on Tokyo segment, and unscheduled collection hides all weather', () => {
   const f = setup({ date: '2027-02-14' }); f.panel.render();
-  assert.doesNotMatch(f.host.innerHTML, /富士见预报/); assert.match(f.host.innerHTML, /京都/);
+  assert.doesNotMatch(f.host.innerHTML, /富士見予報/); assert.match(f.host.innerHTML, /京都/);
   f.setDay('unscheduled'); f.panel.render(); assert.equal(f.host.hidden, true);
 });
 test('candidate dates navigate the itinerary and view-point changes use the chosen location', () => {
@@ -33,10 +33,28 @@ test('candidate dates navigate the itinerary and view-point changes use the chos
   f.nodes.get('[data-fuji-spot]').handlers.change({ target: { value: 'yamanakako' } });
   assert.match(f.host.innerHTML, /value="yamanakako" selected/);
 });
-test('entering forecast range preloads every itinerary city, deduplicated by coordinates', () => {
+test('queries load only the displayed day and viewpoint, without preloading the itinerary', () => {
   const f = setup({ now: Date.parse('2027-02-10T12:00:00+09:00') }); f.panel.render();
-  assert.equal(f.loads.length, 4);
-  assert.deepEqual(new Set(f.loads.map(item => item.name)), new Set(['大阪', '京都', '东京', '河口湖']));
+  assert.equal(f.loads.length, 2);
+  assert.deepEqual(new Set(f.loads.map(item => item.name)), new Set(['东京', '河口湖']));
+});
+test('closed weather query performs no rendering or fetching, including refresh requests', () => {
+  const f = setup({ now: Date.parse('2027-02-10T12:00:00+09:00'), active: false });
+  f.panel.render({ refresh: true });
+  assert.equal(f.host.innerHTML, ''); assert.equal(f.loads.length, 0);
+  f.setActive(true); f.panel.render();
+  assert.equal(f.loads.length, 2); const content = f.host.innerHTML;
+  f.setActive(false); f.setDay('2027-02-14'); f.panel.render({ refresh: true });
+  assert.equal(f.loads.length, 2); assert.equal(f.host.innerHTML, content);
+});
+test('daily and Fuji tabs render and fetch their own forecasts, with Fuji accessible from Kansai days', () => {
+  const now = Date.parse('2027-02-10T12:00:00+09:00');
+  const daily = setup({ now, view: 'daily' }); daily.panel.render();
+  assert.match(daily.host.innerHTML, /当地天气/); assert.doesNotMatch(daily.host.innerHTML, /富士見予報/);
+  assert.deepEqual(daily.loads.map(item => item.name), ['东京']);
+  const fuji = setup({ now, view: 'fuji', date: '2027-02-14' }); fuji.panel.render();
+  assert.match(fuji.host.innerHTML, /富士見予報/); assert.doesNotMatch(fuji.host.innerHTML, /当地天气/);
+  assert.deepEqual(fuji.loads.map(item => item.name), ['河口湖']);
 });
 test('upstream failures are visible and cannot produce recommendations or probability scores', () => {
   const f = setup({ now: Date.parse('2027-02-10T12:00:00+09:00'), read: () => ({ status: 'error', date: '2027-02-10', error: '天气请求超时，请重试' }) });

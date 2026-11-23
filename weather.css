@@ -1,7 +1,18 @@
-.date-chip { min-width: 100px; }
-.date-chip .date-location { display: block; margin-top: 5px; font-size: 14px; font-weight: 500; white-space: nowrap; }
-.date-chip .date-weather { display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; white-space: nowrap; }
-.layout { height: clamp(580px, calc(100dvh - 275px), 800px); }
+.weather-query-button { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
+.weather-query-button > span { font-size: 20px; line-height: 1; color: #b98731; }
+.weather-dialog { width: min(560px, calc(100vw - 28px)); max-height: calc(100dvh - 40px); overflow: hidden; background: var(--surface); }
+.weather-dialog[open] { display: flex; flex-direction: column; }
+.weather-dialog .dialog-head { flex-shrink: 0; padding-bottom: 14px; }
+.weather-dialog .close-btn { min-width: 40px; min-height: 40px; }
+.weather-query-controls { padding: 0 20px 14px; flex-shrink: 0; }
+.weather-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: #edf1ed; }
+.weather-tabs button { min-height: 42px; border: 0; border-radius: 9px; background: transparent; color: #61706a; font-size: 16px; }
+.weather-tabs button[aria-selected="true"] { background: white; color: var(--green); font-weight: 650; box-shadow: 0 2px 5px #243d3010; }
+.weather-date-field { display: flex; align-items: center; gap: 12px; margin-top: 14px; color: #526c63; font-size: 14px; }
+.weather-date-field select { min-width: 0; flex: 1; min-height: 40px; padding: 7px 10px; border: 1px solid #d6dfda; border-radius: 10px; background: white; color: var(--ink); font-size: 16px; }
+.weather-dialog-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 20px 18px; }
+.weather-dialog-scroll > section:last-child { margin-bottom: 0; }
+.weather-query-button:focus-visible, .weather-tabs button:focus-visible, .weather-date-field select:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 .daily-weather, .fuji-panel { margin: 2px 0 14px; padding: 15px; border: 1px solid #dce7e7; border-radius: 17px; background: #f1f7f7; font-size: 14px; line-height: 1.6; }
 .weather-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .weather-heading h3 { margin: 0; font-size: 16px; color: #254e54; }
@@ -56,10 +67,9 @@
 .fuji-method p { margin: 8px 0; }
 .fuji-panel button:focus-visible, .daily-weather button:focus-visible, .fuji-location select:focus-visible { outline: 2px solid #345c72; outline-offset: 2px; }
 @media (max-width: 850px) {
-  .datebar { flex-basis: 88px; }
-  .date-chip { min-width: 86px; }
-  .date-chip .date-location { font-size: 14px; margin-top: 2px; }
-  .date-chip .date-weather { font-size: 14px; margin-top: 1px; }
-  .layout { height: auto; }
+  .weather-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 24px); border-radius: 18px; }
+  .weather-dialog .dialog-head { padding: 12px 14px 10px; }
+  .weather-query-controls { padding: 0 14px 12px; }
+  .weather-dialog-scroll { padding: 0 12px 14px; }
   .daily-weather, .fuji-panel { padding: 12px; }
 }
