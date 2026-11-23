@@ -14,6 +14,8 @@ const server = http.createServer((req, res) => {
   publicFiles['/weather.js'] = ['weather.js', 'text/javascript; charset=utf-8'];
   publicFiles['/weather-ui.js'] = ['weather-ui.js', 'text/javascript; charset=utf-8'];
   publicFiles['/weather.css'] = ['weather.css', 'text/css; charset=utf-8'];
+  publicFiles['/place-search.js'] = ['place-search.js', 'text/javascript; charset=utf-8'];
+  publicFiles['/place-search-ui.js'] = ['place-search-ui.js', 'text/javascript; charset=utf-8'];
   publicFiles['/map-color-style.js'] = ['map-color-style.js', 'text/javascript; charset=utf-8'];
   publicFiles['/assets/maimai.ico'] = ['assets/maimai.ico', 'image/x-icon'];
   const file = publicFiles[pathname];

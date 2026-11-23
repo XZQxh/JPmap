@@ -181,6 +181,24 @@
     .dialog-head h2 { margin: 0; font-size: 18px; }
     .close-btn { border: 0; border-radius: 50%; background: #f0f1ec; width: 31px; height: 31px; color: #58645c; font-size: 18px; }
     .dialog-body { padding: 8px 20px 20px; }
+    #placeDialog { width: min(600px, calc(100% - 28px)); }
+    .place-search-controls { display: flex; gap: 8px; }
+    .field > label { display: block; color: #66716a; font-size: 14px; margin-bottom: 6px; }
+    .place-search-controls input { flex: 1; min-width: 0; }
+    .place-search-controls button { flex: 0 0 auto; }
+    .place-search-status, .place-search-source, .place-search-map-message { font-size: 13px; line-height: 1.6; color: #66716a; margin: 8px 0; }
+    .place-search-source a { color: var(--green); }
+    .place-search-results { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 10px; }
+    .place-search-result { display: grid; gap: 5px; width: 100%; text-align: left; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+    .place-search-result strong { font-size: 15px; }
+    .place-search-result span { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+    .place-search-result small { color: #66716a; font-size: 12px; }
+    .place-search-result[aria-pressed="true"] { border-color: var(--green); background: var(--green-soft); box-shadow: inset 3px 0 var(--green); }
+    .place-search-map { height: 220px; width: 100%; border-radius: 12px; margin-bottom: 10px; background: #e6ece7; }
+    .search-map-pin { width: 32px; height: 32px; padding: 0; border: 2px solid white; border-radius: 50%; background: #245a49; color: white; font-size: 15px; font-weight: 700; box-shadow: 0 2px 6px #0005; }
+    .search-map-pin.selected { background: #ac4e2e; outline: 3px solid #ac4e2e55; }
+    .place-search-result:focus-visible, .search-map-pin:focus-visible { outline: 3px solid #d17b5e; outline-offset: 2px; }
+    .place-search-controls button:disabled { opacity: .6; cursor: wait; }
     .coord-caption { color: var(--muted); font-size: 11px; padding: 0 0 10px; }
     .field { display: block; margin: 0 0 12px; }
     .field > span { display: block; color: #66716a; font-size: 11px; margin-bottom: 6px; }
@@ -375,7 +393,15 @@
       <div class="dialog-head"><h2 id="dialogTitle">添加地点</h2><button class="close-btn" type="button" id="closeDialog" aria-label="关闭">×</button></div>
       <div class="dialog-body">
         <div class="coord-caption" id="coordCaption">在地图上选一个位置</div>
-        <label class="field"><span>地点名称</span><input name="name" required maxlength="80" placeholder="例如：想去的咖啡店"></label>
+        <div class="field">
+          <label for="placeName">地点名称或地址</label>
+          <div class="place-search-controls"><input id="placeName" name="name" required maxlength="80" autocomplete="off" aria-describedby="placeSearchStatus" placeholder="例如：清水寺、東京タワー"><button class="button secondary" id="placeSearchBtn" type="button">搜索地址</button></div>
+        </div>
+        <p class="place-search-status" id="placeSearchStatus" role="status" aria-live="polite"></p>
+        <div class="place-search-map" id="placeSearchMap" role="region" aria-label="候选地点地图，编号与下方候选一致" hidden></div>
+        <p class="place-search-map-message" id="placeSearchMapMessage" hidden>候选地图加载失败，仍可从下方列表选择地址。</p>
+        <div class="place-search-results" id="placeSearchResults" role="group" aria-label="候选地址" aria-busy="false"></div>
+        <p class="place-search-source">搜索日本境内地点 · <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>。名称与参考位置仅在搜索时发送，地址可补充修改。</p>
         <label class="field"><span>完整地址（用于 Google 地图查看与机场接驳路线）</span><input name="address" maxlength="240" placeholder="例如：東京都北区中里2丁目25-6 M東京"></label>
         <div class="field-row">
           <label class="field"><span>类别</span><select name="category" id="categorySelect"></select></label>
@@ -401,6 +427,8 @@
   <script src="pilgrimage.js"></script>
   <script src="weather.js"></script>
   <script src="weather-ui.js"></script>
+  <script src="place-search.js"></script>
+  <script src="place-search-ui.js"></script>
   <script>
     const DAYS = Array.from({ length: 11 }, (_, i) => {
       const d = new Date(Date.UTC(2027, 1, 12 + i));
@@ -1120,6 +1148,26 @@
     const form = document.getElementById('placeForm');
     const dateSelect = document.getElementById('dateSelect');
     const endDateSelect = document.getElementById('endDateSelect');
+    function updateEditorLocation() {
+      document.getElementById('coordCaption').textContent = editorCoords ? `地图位置 · ${editorCoords.lat.toFixed(5)}, ${editorCoords.lng.toFixed(5)}` : '尚未选择位置，请搜索后选择一个候选，或关闭窗口在主地图上点选。';
+      const details = document.getElementById('editorMapDetails');
+      details.hidden = !editorCoords;
+      if (editorCoords) details.href = googlePlaceUrl({ ...editorCoords, address: form.elements.address.value });
+    }
+    const placeSearch = window.JP_PLACE_SEARCH_UI.create({
+      input: form.elements.name, button: document.getElementById('placeSearchBtn'),
+      status: document.getElementById('placeSearchStatus'), list: document.getElementById('placeSearchResults'),
+      mapHost: document.getElementById('placeSearchMap'), mapMessage: document.getElementById('placeSearchMapMessage'),
+      client: window.JP_PLACE_SEARCH.createClient(),
+      getBias: () => { const center = map?.getCenter(); return center ? { lat: center.lat, lng: center.lng } : null; },
+      onInvalidate: () => { editorCoords = null; updateEditorLocation(); },
+      onSelect: row => {
+        editorCoords = { lat: row.lat, lng: row.lng };
+        form.elements.address.value = [row.address, row.name].filter(Boolean).join(' ').slice(0, 240);
+        updateEditorLocation();
+      }
+    });
+    dialog.addEventListener('close', () => placeSearch.close());
     function setupFormOptions() {
       document.getElementById('categorySelect').innerHTML = Object.entries(CATS).filter(([k]) => k !== 'flight').map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
       dateSelect.innerHTML = `<option value="">未排期</option>` + DAYS.map(d => `<option value="${d}">${dateLabel(d, true)} · 2027</option>`).join('');
@@ -1127,10 +1175,9 @@
     }
     function openEditor(place = null, coords = null) {
       editingId = place?.id || null;
-      editorCoords = place ? { lat: Number(place.lat), lng: Number(place.lng) } : coords;
+      editorCoords = place ? { lat: Number(place.lat), lng: Number(place.lng), locationAccuracy: place.locationAccuracy } : coords;
       document.getElementById('dialogTitle').textContent = place ? '编辑地点' : '添加地点';
       document.getElementById('deleteBtn').hidden = !place;
-      document.getElementById('coordCaption').textContent = editorCoords ? `地图位置 · ${editorCoords.lat.toFixed(5)}, ${editorCoords.lng.toFixed(5)}` : '还未选择位置；保存前请先点地图。';
       form.elements.name.value = place?.name || '';
       form.elements.address.value = place?.address || '';
       form.elements.bookingProvider.value = place?.bookingProvider || '';
@@ -1142,6 +1189,8 @@
       const details = document.getElementById('editorMapDetails');
       details.hidden = !editorCoords;
       if (editorCoords) details.href = googlePlaceUrl(place || editorCoords);
+      updateEditorLocation();
+      placeSearch.reset(editorCoords);
       document.getElementById('endDateField').hidden = form.elements.category.value !== 'stay';
       document.getElementById('bookingFields').hidden = form.elements.category.value !== 'stay';
       if (!dialog.open) dialog.showModal();
@@ -1165,7 +1214,8 @@
     });
     form.addEventListener('submit', e => {
       e.preventDefault();
-      if (!editorCoords && !editingId) { dialog.close(); showToast('请先在地图上点选一个位置'); return; }
+      if (!editorCoords || placeSearch.needsSelection()) { showToast('请先选择一个候选地址，或关闭窗口在主地图上点选位置'); return; }
+      if (!form.elements.name.value.trim()) { form.elements.name.focus(); showToast('请输入地点名称'); return; }
       const bookingUrl = form.elements.bookingUrl.value.trim();
       if (bookingUrl && !safeBookingUrl(bookingUrl)) { showToast('预订页面链接需要以 https:// 或 http:// 开头'); return; }
       const previous = places.find(place => place.id === editingId);
@@ -1178,7 +1228,8 @@
         bookingUrl: safeBookingUrl(bookingUrl),
         date: form.elements.date.value || null,
         endDate: form.elements.category.value === 'stay' ? (endDateSelect.value || form.elements.date.value || null) : null,
-        note: form.elements.note.value.trim(), lat: editorCoords.lat, lng: editorCoords.lng
+        note: form.elements.note.value.trim(), lat: editorCoords.lat, lng: editorCoords.lng,
+        locationAccuracy: editorCoords.locationAccuracy
       };
       if (data.endDate && data.date && data.endDate < data.date) { showToast('住宿结束日期不能早于开始日期'); return; }
       if (editingId) places = places.map(p => p.id === editingId ? data : p); else places.push(data);
@@ -1192,11 +1243,8 @@
       const coords = { lat: e.lngLat.lat, lng: e.lngLat.lng };
       openEditor(null, coords);
     });
-    document.getElementById('mapAddBtn').addEventListener('click', () => showToast('在地图上点一下，即可放置地点'));
-    document.getElementById('quickAddBtn').addEventListener('click', () => {
-      if (!map) { showToast('请先恢复地图，再选取地点位置'); return; }
-      const center = map.getCenter(); openEditor(null, { lat: center.lat, lng: center.lng });
-    });
+    document.getElementById('mapAddBtn').addEventListener('click', () => openEditor());
+    document.getElementById('quickAddBtn').addEventListener('click', () => openEditor());
     function updateMobileSheetSummary() {
       const label = maiView.active ? '附近机厅' : pilgrimView.active ? '附近圣地' : dayTitle()[0];
       document.getElementById('mobileSheetSummary').textContent = `${selectedDay === 'unscheduled' ? '未排期' : dateLabel(selectedDay)} · ${label}`;
